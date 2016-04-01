@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/HTMLParser.iml" filepath="$PROJECT_DIR$/.idea/HTMLParser.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/TKOM.iml" filepath="$PROJECT_DIR$/.idea/TKOM.iml" />
     </modules>
   </component>
 </project>
