@@ -58,3 +58,7 @@ void Scanner::readFile( std::string& path )
 
     file.close();
 }
+
+
+
+
