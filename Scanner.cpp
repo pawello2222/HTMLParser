@@ -100,7 +100,7 @@ void Scanner::readFile( const std::string& path )
                 }
 
                 addToken( "identifier", str );
-                addToken( "equals", "" );
+                //addToken( "equals", "" );
 
                 file.get( c );
                 file.get( c );
