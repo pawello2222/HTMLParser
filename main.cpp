@@ -3,11 +3,16 @@
 //
 
 #include <iostream>
+#include "Scanner.h"
 
 using namespace std;
 
 int main()
 {
-    cout << "Hello, World!" << endl;
+    Scanner* scanner = new Scanner();
+    scanner->readFile( "../resources/original.html" );
+    scanner->printTokens();
+    //scanner->getTokenValue( "Domains" );
+
     return 0;
 }

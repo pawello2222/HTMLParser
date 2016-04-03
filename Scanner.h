@@ -7,8 +7,11 @@
 
 
 #include <string>
+#include <iostream>
 #include <fstream>
+#include <sstream>
 #include <vector>
+#include "OrderedDict.h"
 
 class Scanner
 {
@@ -16,12 +19,14 @@ public:
     Scanner();
     ~Scanner();
 
-    void readFile( std::string& path );
-    void readURL( std::string& path );
-    void readHTML();
+    void readFile( const std::string& path );
+
+    void printTokens();
+    //void getTokenValue( std::string value );
 
 private:
-    std::vector< std::pair< std::string, std::string > > tokens; // tokens[ token, attribute ]
+    void addToken( std::string key, std::string value );
+    OrderedDict* tokens;
 
 };
 
