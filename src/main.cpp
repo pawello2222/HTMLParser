@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include "Scanner.h"
+#include "Scanner/Scanner.h"
 
 using namespace std;
 
