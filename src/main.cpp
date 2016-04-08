@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "Scanner/Scanner.h"
+#include "Parser/Parser.h"
 
 using namespace std;
 
