@@ -38,3 +38,8 @@ Token* OrderedDict::getToken( std::string str )
     else
         return nullptr;
 }
+
+const long OrderedDict::getSize() const
+{
+    return orderedData.size();
+}

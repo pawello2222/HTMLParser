@@ -21,6 +21,8 @@ public:
     Token* getToken( int index );
     Token* getToken( std::string str );
 
+    const long getSize() const;
+
 private:
     std::map< std::string, int > indexedData;
     std::vector< Token > orderedData;

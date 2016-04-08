@@ -7,8 +7,6 @@
 
 #include <string>
 
-//const int TOKEN_NAME_COUNT = 13;
-
 enum TokenName
 {
     OPEN_BEGIN_TAG = 0,
@@ -22,8 +20,7 @@ enum TokenName
     EQUAL_SIGN = 8,
     DASH = 9,
     QUOTATION = 10,
-    EXCLAMATION_MARK = 11,
-    PLAIN_TEXT = 12
+    PLAIN_TEXT = 11
 };
 
 struct Token
@@ -60,8 +57,6 @@ struct Token
                 return "DASH";
             case QUOTATION:
                 return "QUOTATION";
-            case EXCLAMATION_MARK:
-                return "EXCLAMATION_MARK";
             case PLAIN_TEXT:
                 return "PLAIN_TEXT";
         }
