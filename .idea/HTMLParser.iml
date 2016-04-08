@@ -2,11 +2,13 @@
 <module type="CPP_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/Scanner.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Scanner.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/OrderedDict.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/OrderedDict.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Scanner.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Token.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Token.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
@@ -190,7 +192,7 @@
           <root url="file:///Library/Frameworks/SDL2_image.framework/Headers" />
           <root url="file:///Library/Frameworks/SDL2_image.framework/Frameworks/webp.framework/Headers" />
           <root url="file:///Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include" />
-          <root url="file:///Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/7.0.2/include" />
+          <root url="file:///Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/7.3.0/include" />
         </CLASSES>
         <SOURCES>
           <root url="file:///System/Library/Frameworks/AudioToolbox.framework/Headers" />
@@ -370,7 +372,7 @@
           <root url="file:///Library/Frameworks/SDL2_image.framework/Headers" />
           <root url="file:///Library/Frameworks/SDL2_image.framework/Frameworks/webp.framework/Headers" />
           <root url="file:///Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include" />
-          <root url="file:///Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/7.0.2/include" />
+          <root url="file:///Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/7.3.0/include" />
         </SOURCES>
       </library>
     </orderEntry>
