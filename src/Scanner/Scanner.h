@@ -22,7 +22,7 @@ public:
     void readFile( const std::string& path );
 
     void printTokens();
-    //void getTokenValue( std::string value );
+    OrderedDict* getTokens();
 
 private:
     void addToken( TokenName key, std::string value );

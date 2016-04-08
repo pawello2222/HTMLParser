@@ -178,12 +178,7 @@ void Scanner::printTokens()
     std::cout << tokens->getToken( value ).value << std::endl;
 }*/
 
-
-
-
-
-
-
-
-
-
+OrderedDict* Scanner::getTokens()
+{
+    return tokens;
+}
