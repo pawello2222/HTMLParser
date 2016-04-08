@@ -31,14 +31,12 @@ void Scanner::readFile( const std::string& path )
     char c;
     std::string str = "";
 
-    bool beginTag;
-
     ReadState state = ReadState::READ_TEXT;
 
     while ( !file.eof() )
     {
         file.get( c );
-        // if ( file.eof() ) break;
+        if ( file.eof() ) break;
 
         if ( state == ReadState::READ_TEXT )
         {
@@ -49,8 +47,11 @@ void Scanner::readFile( const std::string& path )
             }
             else
             {
-                addToken( TokenName::PLAIN_TEXT, str );
-                str = "";
+                if ( str != "" )
+                {
+                    addToken( TokenName::PLAIN_TEXT, str );
+                    str = "";
+                }
 
                 file.get( c );
 
@@ -89,26 +90,37 @@ void Scanner::readFile( const std::string& path )
                 }
 
                 if ( c == '!' )
+                {
                     addToken( TokenName::EXCLAMATION_MARK, "" );
-                if ( c == '-' )
+                    file.get( c );
+                    if ( c == '-' )
+                    {
+                        file.get( c );
+                        if ( c == '-' )
+                            state = ReadState::READ_TAG_INSIDE;
+                        file.unget();
+                    }
+                    file.unget();
+                }
+                else if ( c == '-' )
                     addToken( TokenName::DASH, "" );
-                if ( c == '=' )
+                else if ( c == '=' )
                     addToken( TokenName::EQUAL_SIGN, "" );
-                if ( c == ' ' )
+                else if ( c == ' ' )
                 {
                     do
                         file.get( c );
-                    while ( !file.eof() && c != ' ' );
+                    while ( !file.eof() && c == ' ' );
                     file.unget();
 
                     addToken( TokenName::WHITESPACE, "" );
                 }
-                if ( c == '>' )
+                else if ( c == '>' )
                 {
                     addToken( TokenName::CLOSE_TAG, "" );
                     state = ReadState::READ_TEXT;
                 }
-                if ( c == '/' )
+                else if ( c == '/' )
                 {
                     file.get( c );
                     if ( c == '>' )
@@ -119,7 +131,7 @@ void Scanner::readFile( const std::string& path )
                     else
                         file.unget();
                 }
-                if ( c == '"' )
+                else if ( c == '"' )
                 {
                     addToken( TokenName::QUOTATION, "" );
                     state = ReadState::READ_VALUE;

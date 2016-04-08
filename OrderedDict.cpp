@@ -22,5 +22,5 @@ void OrderedDict::insert( Token token )
 void OrderedDict::print()
 {
     for( auto it = orderedData.begin(); it != orderedData.end(); it++ )
-        std::cout << it->name << " " << it->value << std::endl;
+        std::cout << it->decription( it->name ) << " " << it->value << std::endl;
 }
