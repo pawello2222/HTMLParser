@@ -1,5 +1,5 @@
 //
-// Created by Pawel on 03.04.2016.
+// Created by Pawel Wiszenko on 03.04.2016.
 //
 
 #ifndef HTMLPARSER_ORDEREDDICT_H
@@ -8,24 +8,13 @@
 #include <iostream>
 #include <map>
 #include <vector>
-
-struct Token
-{
-    Token( std::string name, std::string value )
-    {
-        this->name = name;
-        this->value = value;
-    }
-
-    std::string name;
-    std::string value;
-};
+#include "Token.h"
 
 class OrderedDict
 {
 public:
     void insert( Token token );
-    Token getToken( std::string str );
+    //Token getToken( std::string str );
     void print();
 
 private:

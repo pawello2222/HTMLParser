@@ -1,5 +1,5 @@
 //
-// Created by Pawel on 03.04.2016.
+// Created by Pawel Wiszenko on 03.04.2016.
 //
 
 #include "OrderedDict.h"
@@ -10,14 +10,14 @@ void OrderedDict::insert( Token token )
     orderedData.push_back( token );
 }
 
-Token OrderedDict::getToken( std::string str )
+/*Token OrderedDict::getToken( std::string str )
 {
     auto it = indexedData.find( str );
     if ( it != indexedData.end() )
         return orderedData[ it->second ];
     else
         return Token( "", "" );
-}
+}*/
 
 void OrderedDict::print()
 {
