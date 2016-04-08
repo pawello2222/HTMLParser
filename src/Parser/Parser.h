@@ -9,53 +9,69 @@
 #include <vector>
 #include "../Data Structures/OrderedDict.h"
 
-namespace parser
+enum Identifier
 {
-    enum Identifier
+    ROOT = 0,
+    TAG = 1,
+    TEXT = 2,
+    COMMENT = 3
+};
+
+class Attribute
+{
+public:
+    std::string name;
+    std::string value;
+};
+
+class Node
+{
+public:
+    Node( Identifier _identifier, std::string _name )
     {
-        TAG = 0,
-        TEXT = 1,
-        COMMENT = 2
-    };
+        this->identifier = _identifier;
+        this->name = _name;
+        this->parent = nullptr;
+    }
 
-    class Attribute
+    Identifier identifier;
+    std::string name;
+    std::vector< Node* > nodes;
+    std::vector< Attribute* > attributes;
+    Node* parent;
+};
+
+class Tree
+{
+public:
+    Tree()
     {
-        std::string name;
-        std::string value;
-    };
+        root = nullptr;
+    }
 
-    class TreeNode
-    {
-        Identifier identifier;
-
-        std::vector< TreeNode* > nodes;
-        std::vector< Attribute* > attributes;
-    };
-
-    class Tree
-    {
-        TreeNode* root;
-
-        std::string doctype;
-    };
-}
+    Node* root;
+    std::string doctype;
+};
 
 class Parser
 {
 public:
     Parser( OrderedDict* _tokens );
-    ~Parser();
 
     void parse();
 
 private:
-    void parseDoctype();
-    void parseNode();
-    void parseAttribute();
+    bool parseDoctype();
+    bool parseNode();
+    bool parseAttribute();
 
-    parser::Tree* tree;
+    bool readToken( int index, TokenName name );
+    bool readToken( int index, TokenName name, std::string value );
+
+    Tree* tree;
     OrderedDict* tokens;
 
+    Node* currNode;
     int currIndex;
 };
 

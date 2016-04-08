@@ -1,8 +1,7 @@
 //
-// Created by Pawel on 01.04.2016.
+// Created by Pawel Wiszenko on 01.04.2016.
 //
 
-#include <iostream>
 #include "Scanner/Scanner.h"
 #include "Parser/Parser.h"
 
@@ -11,9 +10,12 @@ using namespace std;
 int main()
 {
     Scanner* scanner = new Scanner();
+    Parser* parser = new Parser( scanner->getTokens() );
     scanner->readFile( "../resources/basic.html" );
+    parser->parse();
+
+
     scanner->printTokens();
-    //scanner->getTokenValue( "Domains" );
 
     return 0;
 }
