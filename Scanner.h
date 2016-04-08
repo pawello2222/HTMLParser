@@ -1,5 +1,5 @@
 //
-// Created by Pawel on 01.04.2016.
+// Created by Pawel Wiszenko on 01.04.2016.
 //
 
 #ifndef HTMLPARSER_SCANNER_H
@@ -25,9 +25,10 @@ public:
     //void getTokenValue( std::string value );
 
 private:
-    void addToken( std::string key, std::string value );
+    void addToken( TokenName key, std::string value );
     OrderedDict* tokens;
 
+    std::string specialCharacters;
 };
 
 

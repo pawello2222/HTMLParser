@@ -1,5 +1,5 @@
 //
-// Created by Pawel on 01.04.2016.
+// Created by Pawel Wiszenko on 01.04.2016.
 //
 
 #include "Scanner.h"
@@ -7,6 +7,8 @@
 Scanner::Scanner()
 {
     tokens = new OrderedDict();
+
+    specialCharacters = "</> !=-\"";
 }
 
 Scanner::~Scanner()
@@ -14,13 +16,12 @@ Scanner::~Scanner()
     delete tokens;
 }
 
-enum State
+enum ReadState
 {
-    TAG_BEGIN = 0,
-    TAG_INSIDE = 1,
-    PLAIN_TEXT = 2,
-    DOCTYPE = 3,
-    COMMENT = 4
+    READ_TAG = 0,
+    READ_TAG_INSIDE = 1,
+    READ_VALUE = 2,
+    READ_TEXT = 3
 };
 
 void Scanner::readFile( const std::string& path )
@@ -32,174 +33,122 @@ void Scanner::readFile( const std::string& path )
 
     bool beginTag;
 
-    State state = PLAIN_TEXT;
+    ReadState state = ReadState::READ_TEXT;
 
     while ( !file.eof() )
     {
-        switch ( state )
-        {
-            case TAG_BEGIN:
-                do
-                    file.get( c );
-                while ( !file.eof() && c == ' ' );
+        file.get( c );
+        // if ( file.eof() ) break;
 
-                if ( c == '!' )
+        if ( state == ReadState::READ_TEXT )
+        {
+            if ( c != '<' )
+            {
+                str += c;
+                continue;
+            }
+            else
+            {
+                addToken( TokenName::PLAIN_TEXT, str );
+                str = "";
+
+                file.get( c );
+
+                if ( c == '/' )
                 {
-                    file.get( c );
-                    if ( c == '-' )
-                        state = COMMENT;
-                    else
-                        state = DOCTYPE;
-                    break;
-                }
-                else if ( c == '/' )
-                {
-                    beginTag = false;
-                    file.get( c );
+                    addToken( TokenName::OPEN_END_TAG, "" );
                 }
                 else
-                    beginTag = true;
-
-                str = "";
-                do
                 {
-                    str += c;
-                    file.get( c );
+                    addToken( TokenName::OPEN_BEGIN_TAG, "" );
+                    file.unget();
                 }
-                while ( !file.eof() && c != '/' && c != '>' && c != ' ');
 
-                addToken( beginTag ? "begin_tag" : "end_tag", str );
+                state = ReadState::READ_TAG;
+            }
+        }
+        else if ( state != ReadState::READ_VALUE )
+        {
+            if ( specialCharacters.find( c ) == std::string::npos )
+            {
+                str += c;
+                continue;
+            }
+            else
+            {
+                if ( str != "" )
+                {
+                    if ( state == ReadState::READ_TAG )
+                    {
+                        addToken( TokenName::TAG_ID, str );
+                        state = ReadState::READ_TAG_INSIDE;
+                    }
+                    else
+                        addToken( TokenName::ATTRIBUTE_NAME, str );
+                    str = "";
+                }
 
-                state = TAG_INSIDE;
-                break;
-
-            case TAG_INSIDE:
+                if ( c == '!' )
+                    addToken( TokenName::EXCLAMATION_MARK, "" );
+                if ( c == '-' )
+                    addToken( TokenName::DASH, "" );
+                if ( c == '=' )
+                    addToken( TokenName::EQUAL_SIGN, "" );
                 if ( c == ' ' )
                 {
                     do
                         file.get( c );
-                    while ( !file.eof() && c == ' ' );
-                }
+                    while ( !file.eof() && c != ' ' );
+                    file.unget();
 
+                    addToken( TokenName::WHITESPACE, "" );
+                }
+                if ( c == '>' )
+                {
+                    addToken( TokenName::CLOSE_TAG, "" );
+                    state = ReadState::READ_TEXT;
+                }
                 if ( c == '/' )
-                    file.get( c );
-
-                if ( c == '>' )
                 {
-                     //addToken( "tag close", "" );
-                    state = PLAIN_TEXT;
-                    break;
-                }
-
-                str = "";
-                while ( !file.eof() && c != '=' )
-                {
-                    str += c;
-                    c = ' ';
                     file.get( c );
-                }
-
-                addToken( "identifier", str );
-                //addToken( "equals", "" );
-
-                file.get( c );
-                file.get( c );
-                //str += c;
-
-                str = "";
-                do
-                {
-                    str += c;
-                    file.get( c );
-
-                }
-                while ( !file.eof() && c != '"');
-
-                file.get( c );
-
-                addToken( "value", str );
-                break;
-
-            case PLAIN_TEXT:
-                file.get( c );
-
-                str = "";
-                while ( !file.eof() && c != '<' )
-                {
-                    str += c;
-                    c = ' ';
-                    file.get( c );
-                }
-
-                if ( str != "" /*&& str != "\n"*/ )
-                    addToken( "text", str );
-
-                state = TAG_BEGIN;
-                break;
-
-            case DOCTYPE:
-                while ( !file.eof() && c != ' ' )
-                    file.get( c );
-
-                while ( !file.eof() && c == ' ' )
-                    file.get( c );
-
-                str = "";
-                while ( !file.eof() && c != '>' )
-                {
-                    str += c;
-                    c = ' ';
-                    file.get( c );
-                }
-
-                addToken( "DOCTYPE", str );
-                state = PLAIN_TEXT;
-                break;
-
-            case COMMENT:
-                file.get( c );
-                file.get( c );
-
-                if ( c == '>' )
-                {
-                    addToken( "comment", "" );
-                    state = PLAIN_TEXT;
-                    break;
-                }
-
-                str = "";
-                while ( !file.eof() )
-                {
-                    str += c;
-                    c = ' ';
-                    file.get( c );
-
-                    if ( c == '-' )
+                    if ( c == '>' )
                     {
-                        file.get( c );
-                        if ( c == '-' )
-                        {
-                            file.get( c );
-                            if ( c == '>' )
-                            {
-                                addToken( "comment", str );
-                                state = PLAIN_TEXT;
-                                break;
-                            }
-                            else
-                                str += "--";
-                        }
+                        addToken( TokenName::AUTO_CLOSE_TAG, "" );
+                        state = ReadState::READ_TEXT;
                     }
+                    else
+                        file.unget();
                 }
+                if ( c == '"' )
+                {
+                    addToken( TokenName::QUOTATION, "" );
+                    state = ReadState::READ_VALUE;
+                }
+            }
+        }
+        else //if ( state == ReadState::READ_VALUE )
+        {
+            if ( c != '"' )
+            {
+                str += c;
+                continue;
+            }
+            else
+            {
+                addToken( TokenName::ATTRIBUTE_VALUE, str );
+                str = "";
 
-                break;
+                addToken( TokenName::QUOTATION, "" );
+
+                state = ReadState::READ_TAG_INSIDE;
+            }
         }
     }
 
     file.close();
 }
 
-void Scanner::addToken( std::string key, std::string value )
+void Scanner::addToken( TokenName key, std::string value )
 {
     tokens->insert( Token( key, value ) );
 }

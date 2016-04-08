@@ -7,6 +7,8 @@
 
 #include <string>
 
+//const int TOKEN_NAME_COUNT = 13;
+
 enum TokenName
 {
     OPEN_BEGIN_TAG = 0,
@@ -17,10 +19,11 @@ enum TokenName
     ATTRIBUTE_NAME = 5,
     ATTRIBUTE_VALUE = 6,
     WHITESPACE = 7,
-    EQUALS = 8,
+    EQUAL_SIGN = 8,
     DASH = 9,
     QUOTATION = 10,
-    PLAIN_TEXT = 11
+    EXCLAMATION_MARK = 11,
+    PLAIN_TEXT = 12
 };
 
 struct Token
