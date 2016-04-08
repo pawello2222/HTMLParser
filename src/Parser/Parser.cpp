@@ -15,18 +15,14 @@ Parser::Parser( OrderedDict* _tokens )
 
 void Parser::parse()
 {
-    parseDoctype();
-    parseNode();
-    parseNode();
+    if ( !parseDoctype() )
+        throw new parser_exception::doctype_exception();
 
-    /*if ( parseDoctype() )
+    while ( currIndex < tokens->getSize() )
     {
-
+        if ( !parseNode() )
+            throw new parser_exception::node_exception();
     }
-    else
-    {
-        throw new exception::parser::parser_exception();
-    }*/
 }
 
 bool Parser::parseDoctype()
@@ -37,10 +33,13 @@ bool Parser::parseDoctype()
              && readToken( ++currIndex, TokenName::WHITESPACE )
              && readToken( ++currIndex, TokenName::ATTRIBUTE_NAME ) )
         {
-            tree->doctype = tokens->getToken( currIndex++ )->value;
+            tree->doctype = tokens->getToken( currIndex )->value;
 
             if ( readToken( ++currIndex, TokenName::CLOSE_TAG ) )
+            {
+                ++currIndex;
                 return true;
+            }
         }
     }
 
@@ -53,11 +52,36 @@ bool Parser::parseNode()
     {
         if ( readToken( ++currIndex, TokenName::TAG_ID ) )
         {
-            currNode->nodes.push_back( new Node( Identifier::TAG, tokens->getToken( currIndex )->value ) );
-            currNode->parent = currNode;
+            if ( tokens->getToken( currIndex )->value == "COMMENT"
+                 && readToken( ++currIndex, TokenName::ATTRIBUTE_NAME ) )
+            {
+                currNode->nodes.push_back( new Node( Identifier::COMMENT, tokens->getToken( currIndex )->value ) );
+                currNode->nodes.back()->parent = currNode;
+
+                if ( readToken( ++currIndex, TokenName::CLOSE_TAG ) )
+                {
+                    ++currIndex;
+                    return true;
+                }
+                else
+                    return false;
+            }
+
+            currNode->nodes.push_back( new Node( Identifier::TAG, tokens->getToken( currIndex++ )->value ) );
+            currNode->nodes.back()->parent = currNode;
             currNode = currNode->nodes.back();
 
-            if ( readToken( ++currIndex, TokenName::CLOSE_TAG ) )
+            while ( readToken( currIndex, TokenName::WHITESPACE ) )
+            {
+                if ( !readToken( ++currIndex, TokenName::CLOSE_TAG )
+                     && !readToken( currIndex, TokenName::AUTO_CLOSE_TAG ) )
+                {
+                    if ( !parseAttribute() )
+                        return false;
+                }
+            }
+
+            if ( readToken( currIndex, TokenName::CLOSE_TAG ) )
             {
                 ++currIndex;
                 return true;
@@ -68,21 +92,23 @@ bool Parser::parseNode()
                 ++currIndex;
                 return true;
             }
-            else
-            {
-                parseAttribute();
-            }
         }
     }
-    else if ( readToken( currIndex, TokenName::CLOSE_TAG ) )
+    else if ( readToken( currIndex, TokenName::OPEN_END_TAG ) )
     {
         if ( readToken( ++currIndex, TokenName::TAG_ID ) )
         {
-            if ( tokens->getToken( currIndex )->value != currNode->name )
-                return false;
+            //todo: apparently wrong: ( <td> ... </th> )
+            /*if ( tokens->getToken( currIndex )->value != currNode->name )
+                return false;*/
 
             currNode = currNode->parent;
-            return true;
+
+            if ( readToken( ++currIndex, TokenName::CLOSE_TAG ) )
+            {
+                ++currIndex;
+                return true;
+            }
         }
     }
     else if ( readToken( currIndex, TokenName::PLAIN_TEXT ) )
@@ -96,6 +122,23 @@ bool Parser::parseNode()
 
 bool Parser::parseAttribute()
 {
+    if ( readToken( currIndex, TokenName::ATTRIBUTE_NAME ) )
+    {
+        std::string tmp = tokens->getToken( currIndex )->value;
+
+        if ( readToken( ++currIndex, TokenName::EQUAL_SIGN )
+             && readToken( ++currIndex, TokenName::QUOTATION )
+             && readToken( ++currIndex, TokenName::ATTRIBUTE_VALUE ) )
+        {
+            currNode->attributes.push_back( new Attribute( tmp, tokens->getToken( currIndex )->value ) );
+
+            if ( readToken( ++currIndex, TokenName::QUOTATION ) )
+            {
+                ++currIndex;
+                return true;
+            }
+        }
+    }
 
     return false;
 }
