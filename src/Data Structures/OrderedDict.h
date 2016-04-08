@@ -14,11 +14,13 @@ class OrderedDict
 {
 public:
     void insert( Token token );
-    //Token getToken( std::string str );
     void print();
 
+    Token* getToken( int index );
+    Token* getToken( std::string str );
+
 private:
-    std::map< std::string ,int > indexedData;
+    std::map< std::string, int > indexedData;
     std::vector< Token > orderedData;
 };
 

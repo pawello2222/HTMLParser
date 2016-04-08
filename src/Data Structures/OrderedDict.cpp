@@ -10,17 +10,25 @@ void OrderedDict::insert( Token token )
     orderedData.push_back( token );
 }
 
-/*Token OrderedDict::getToken( std::string str )
-{
-    auto it = indexedData.find( str );
-    if ( it != indexedData.end() )
-        return orderedData[ it->second ];
-    else
-        return Token( "", "" );
-}*/
-
 void OrderedDict::print()
 {
     for( auto it = orderedData.begin(); it != orderedData.end(); it++ )
         std::cout << it->decription( it->name ) << " " << it->value << std::endl;
+}
+
+Token* OrderedDict::getToken( int index )
+{
+    if ( index >= orderedData.size() )
+        return nullptr;
+
+    return &orderedData[ index ];
+}
+
+Token* OrderedDict::getToken( std::string str )
+{
+    auto it = indexedData.find( str );
+    if ( it != indexedData.end() )
+        return &orderedData[ it->second ];
+    else
+        return nullptr;
 }
