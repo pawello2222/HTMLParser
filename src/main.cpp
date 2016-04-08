@@ -11,7 +11,7 @@ using namespace std;
 int main()
 {
     Scanner* scanner = new Scanner();
-    scanner->readFile( "../resources/original.html" );
+    scanner->readFile( "../resources/basic.html" );
     scanner->printTokens();
     //scanner->getTokenValue( "Domains" );
 
