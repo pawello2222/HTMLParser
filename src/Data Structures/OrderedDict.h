@@ -13,6 +13,8 @@
 class OrderedDict
 {
 public:
+    OrderedDict();
+
     void insert( Token token );
     void print();
 

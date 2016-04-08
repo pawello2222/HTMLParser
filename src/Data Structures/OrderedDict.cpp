@@ -4,6 +4,12 @@
 
 #include "OrderedDict.h"
 
+OrderedDict::OrderedDict()
+{
+    indexedData.clear();
+    orderedData.clear();
+}
+
 void OrderedDict::insert( Token token )
 {
     indexedData.insert( std::make_pair( token.value, orderedData.size() ) );
