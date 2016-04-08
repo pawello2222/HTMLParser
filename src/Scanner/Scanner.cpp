@@ -21,7 +21,8 @@ enum ReadState
     READ_TAG = 0,
     READ_TAG_INSIDE = 1,
     READ_VALUE = 2,
-    READ_TEXT = 3
+    READ_TEXT = 3,
+    READ_COMMENT = 4
 };
 
 void Scanner::readFile( const std::string& path )
@@ -36,7 +37,8 @@ void Scanner::readFile( const std::string& path )
     while ( !file.eof() )
     {
         file.get( c );
-        if ( file.eof() ) break;
+        if ( file.eof() )
+            break;
 
         if ( state == ReadState::READ_TEXT )
         {
@@ -68,6 +70,33 @@ void Scanner::readFile( const std::string& path )
                 state = ReadState::READ_TAG;
             }
         }
+        else if ( state == ReadState::READ_COMMENT )
+        {
+            if ( c != '-' )
+            {
+                str += c;
+                continue;
+            }
+            else
+            {
+                file.get( c );
+                if ( c == '-' )
+                {
+                    file.get( c );
+                    if ( c == '>' )
+                    {
+                        addToken( TokenName::ATTRIBUTE_NAME, str );
+                        str = "";
+                        addToken( TokenName::CLOSE_TAG, "" );
+                        state = ReadState::READ_TEXT;
+                    }
+                    else
+                        str += c;
+                }
+                else
+                    str += c;
+            }
+        }
         else if ( state != ReadState::READ_VALUE )
         {
             if ( specialCharacters.find( c ) == std::string::npos )
@@ -91,19 +120,22 @@ void Scanner::readFile( const std::string& path )
 
                 if ( c == '!' )
                 {
-                    addToken( TokenName::EXCLAMATION_MARK, "" );
                     file.get( c );
                     if ( c == '-' )
                     {
                         file.get( c );
                         if ( c == '-' )
-                            state = ReadState::READ_TAG_INSIDE;
-                        file.unget();
+                        {
+                            addToken( TokenName::TAG_ID, "COMMENT" );
+                            state = ReadState::READ_COMMENT;
+                            continue;
+                        }
+                        else
+                            file.unget();
                     }
-                    file.unget();
+                    else
+                        file.unget();
                 }
-                else if ( c == '-' )
-                    addToken( TokenName::DASH, "" );
                 else if ( c == '=' )
                     addToken( TokenName::EQUAL_SIGN, "" );
                 else if ( c == ' ' )
