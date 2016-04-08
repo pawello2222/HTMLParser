@@ -8,13 +8,11 @@
 
 #include <exception>
 
-namespace exception
+namespace parser_exception
 {
-    namespace parser
-    {
-        class parser_exception : public std::exception { };
-        class doctype_exception : public parser_exception { };
-    }
+    class parser_exception : public std::exception { };
+    class doctype_exception : public parser_exception { };
+    class node_exception : public parser_exception { };
 }
 
 
