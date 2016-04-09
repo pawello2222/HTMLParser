@@ -18,9 +18,8 @@ enum Identifier
     COMMENT = 3
 };
 
-class Attribute
+struct Attribute
 {
-public:
     Attribute( std::string _name, std::string _value )
     {
         this->name = _name;
@@ -31,9 +30,13 @@ public:
     std::string value;
 };
 
-class Node
+struct Node
 {
-public:
+    Node()
+    {
+        this->parent = nullptr;
+    }
+
     Node( Identifier _identifier, std::string _name )
     {
         this->identifier = _identifier;
@@ -43,31 +46,32 @@ public:
 
     Identifier identifier;
     std::string name;
-    std::vector< Node* > nodes;
-    std::vector< Attribute* > attributes;
+    std::vector< Node > nodes;
+    std::vector< Attribute > attributes;
     Node* parent;
 };
 
-class Tree
+struct Tree
 {
-public:
-    Tree()
+    ~Tree()
     {
-        root = nullptr;
+        root.attributes.clear();
+        root.nodes.clear();
+        root.parent = nullptr;
     }
 
-    Node* root;
+    Node root;
     std::string doctype;
 };
 
 class Parser
 {
 public:
-    Parser( std::vector< Token* > _tokens );
+    Parser( std::vector< Token >& _tokens );
 
     void parse();
 
-    Tree* getTree();
+    Tree& getTree();
 
 private:
     bool parseDoctype();
@@ -77,8 +81,8 @@ private:
     bool readToken( unsigned long index, TokenName name );
     bool readToken( unsigned long index, TokenName name, std::string value );
 
-    Tree* tree;
-    std::vector< Token* > tokens;
+    Tree tree;
+    std::vector< Token >& tokens;
 
     Node* currNode;
     unsigned long currIndex;

@@ -5,11 +5,10 @@
 #include "Parser.h"
 #include "../Exceptions/Exceptions.h"
 
-Parser::Parser( std::vector< Token* > _tokens )
+Parser::Parser( std::vector< Token >& _tokens ) : tokens( _tokens )
 {
-    this->tree = new Tree();
-    this->tokens = _tokens;
-    this->currNode = tree->root = new Node( Identifier::ROOT, "" );
+    this->tree.root = Node( Identifier::ROOT, "" );
+    this->currNode = &tree.root;
     this->currIndex = 0;
 }
 
@@ -24,12 +23,12 @@ void Parser::parse()
         {
             std::stringstream msg;
             msg << "Error: Invalid tag at index " << currIndex << "\nIndex " << currIndex - 1 << ": Name: "
-                << tokens.at( currIndex - 1 )->decription( tokens.at( currIndex - 1 )->name )
-                << " Value: " << tokens.at( currIndex - 1 )->value << "\nIndex " << currIndex << ": Name: "
-                << tokens.at( currIndex )->decription( tokens.at( currIndex )->name )
-                << " Value: " << tokens.at( currIndex )->value << "\nIndex " << currIndex + 1 << ": Name: "
-                << tokens.at( currIndex + 1 )->decription( tokens.at( currIndex + 1 )->name )
-                << " Value: " << tokens.at( currIndex + 1 )->value;
+                << tokens.at( currIndex - 1 ).description( tokens.at( currIndex - 1 ).name )
+                << " Value: " << tokens.at( currIndex - 1 ).value << "\nIndex " << currIndex << ": Name: "
+                << tokens.at( currIndex ).description( tokens.at( currIndex ).name )
+                << " Value: " << tokens.at( currIndex ).value << "\nIndex " << currIndex + 1 << ": Name: "
+                << tokens.at( currIndex + 1 ).description( tokens.at( currIndex + 1 ).name )
+                << " Value: " << tokens.at( currIndex + 1 ).value;
             throw parser_exception( msg.str() );
         }
     }
@@ -46,7 +45,7 @@ bool Parser::parseDoctype()
              && readToken( ++currIndex, TokenName::WHITESPACE )
              && readToken( ++currIndex, TokenName::ATTRIBUTE_NAME ) )
         {
-            tree->doctype = tokens.at( currIndex )->value;
+            tree.doctype = tokens.at( currIndex ).value;
 
             if ( readToken( ++currIndex, TokenName::CLOSE_TAG ) )
             {
@@ -65,11 +64,11 @@ bool Parser::parseNode()
     {
         if ( readToken( ++currIndex, TokenName::TAG_ID ) )
         {
-            if ( tokens.at( currIndex )->value == "COMMENT"
+            if ( tokens.at( currIndex ).value == "COMMENT"
                  && readToken( ++currIndex, TokenName::ATTRIBUTE_NAME ) )
             {
-                currNode->nodes.push_back( new Node( Identifier::COMMENT, tokens.at( currIndex )->value ) );
-                currNode->nodes.back()->parent = currNode;
+                currNode->nodes.push_back( Node( Identifier::COMMENT, tokens.at( currIndex ).value ) );
+                currNode->nodes.back().parent = currNode;
 
                 if ( readToken( ++currIndex, TokenName::CLOSE_TAG ) )
                 {
@@ -80,9 +79,9 @@ bool Parser::parseNode()
                     return false;
             }
 
-            currNode->nodes.push_back( new Node( Identifier::TAG, tokens.at( currIndex )->value ) );
-            currNode->nodes.back()->parent = currNode;
-            currNode = currNode->nodes.back();
+            currNode->nodes.push_back( Node( Identifier::TAG, tokens.at( currIndex ).value ) );
+            currNode->nodes.back().parent = currNode;
+            currNode = &currNode->nodes.back();
 
             ++currIndex;
             while ( readToken( currIndex, TokenName::WHITESPACE ) )
@@ -130,8 +129,8 @@ bool Parser::parseNode()
     }
     else if ( readToken( currIndex, TokenName::PLAIN_TEXT ) )
     {
-        currNode->nodes.push_back( new Node( Identifier::TEXT, tokens.at( currIndex++ )->value ) );
-        currNode->nodes.back()->parent = currNode;
+        currNode->nodes.push_back( Node( Identifier::TEXT, tokens.at( currIndex++ ).value ) );
+        currNode->nodes.back().parent = currNode;
         return true;
     }
 
@@ -142,13 +141,13 @@ bool Parser::parseAttribute()
 {
     if ( readToken( currIndex, TokenName::ATTRIBUTE_NAME ) )
     {
-        std::string tmp = tokens.at( currIndex )->value;
+        std::string tmp = tokens.at( currIndex ).value;
 
         if ( readToken( ++currIndex, TokenName::EQUAL_SIGN )
              && readToken( ++currIndex, TokenName::QUOTATION )
              && readToken( ++currIndex, TokenName::ATTRIBUTE_VALUE ) )
         {
-            currNode->attributes.push_back( new Attribute( tmp, tokens.at( currIndex )->value ) );
+            currNode->attributes.push_back( Attribute( tmp, tokens.at( currIndex ).value ) );
 
             if ( readToken( ++currIndex, TokenName::QUOTATION ) )
             {
@@ -161,18 +160,18 @@ bool Parser::parseAttribute()
     return false;
 }
 
-Tree* Parser::getTree()
+Tree& Parser::getTree()
 {
     return tree;
 }
 
 bool Parser::readToken( unsigned long index, TokenName name )
 {
-    return tokens.at( index )->name == name;
+    return tokens.at( index ).name == name;
 }
 
 bool Parser::readToken( unsigned long index, TokenName name, std::string value )
 {
-    return tokens.at( index )->name == name
-         && tokens.at( index )->value == value;
+    return tokens.at( index ).name == name
+         && tokens.at( index ).value == value;
 }

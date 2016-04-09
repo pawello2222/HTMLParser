@@ -11,11 +11,6 @@ Scanner::Scanner()
     specialCharacters = "</> !=-\"";
 }
 
-Scanner::~Scanner()
-{
-    //todo: delete tokens
-}
-
 enum ReadState
 {
     READ_TAG = 0,
@@ -146,7 +141,7 @@ void Scanner::readFile( const std::string& path )
             {
                 if ( state == ReadState::READ_TAG )
                 {
-                    if ( str == "script" && tokens.back()->name != TokenName::OPEN_END_TAG )
+                    if ( str == "script" && tokens.back().name != TokenName::OPEN_END_TAG )
                         scriptState = ScriptState::READ_SCRIPT;
                     addToken( TokenName::TAG_ID, str );
                     state = ReadState::READ_TAG_INSIDE;
@@ -231,10 +226,10 @@ void Scanner::readFile( const std::string& path )
 
 void Scanner::addToken( TokenName key, std::string value )
 {
-    tokens.push_back( new Token( key, value ) );
+    tokens.push_back( Token( key, value ) );
 }
 
-std::vector< Token* > Scanner::getTokens()
+std::vector< Token >& Scanner::getTokens()
 {
     return tokens;
 }

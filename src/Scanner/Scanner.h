@@ -18,15 +18,14 @@ class Scanner
 {
 public:
     Scanner();
-    ~Scanner();
 
     void readFile( const std::string& path );
 
-    std::vector< Token* > getTokens();
+    std::vector< Token >& getTokens();
 
 private:
     void addToken( TokenName key, std::string value );
-    std::vector< Token* > tokens;
+    std::vector< Token > tokens;
 
     std::string specialCharacters;
 };

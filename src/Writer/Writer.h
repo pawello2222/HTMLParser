@@ -12,14 +12,14 @@
 class Writer
 {
 public:
-    Writer( Tree* _tree );
+    Writer( Tree& _tree ) : tree( _tree ) {}
 
     void write( std::string path );
 
 private:
     void generateJSONTree();
 
-    Tree* tree;
+    Tree& tree;
 };
 
 

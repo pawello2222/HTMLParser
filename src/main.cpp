@@ -6,20 +6,20 @@
 #include "Parser/Parser.h"
 #include "Writer/Writer.h"
 
-void printTokens( std::vector< Token* > tokens )
+void printTokens( std::vector< Token >& tokens )
 {
     std::cout << "\n";
-    for ( auto token : tokens )
-        std::cout << token->decription( token->name ) << " " << token->value << std::endl;
+    for ( unsigned long i = 0; i < tokens.size(); i++ )
+        std::cout << tokens[ i ].description( tokens[ i ].name ) << " " << tokens[ i ].value << std::endl;
 }
 
 int main()
 {
-    Scanner* scanner = new Scanner();
+    Scanner& scanner = *( new Scanner() );
 
     try
     {
-        scanner->readFile( "../resources/original-edited.html" );
+        scanner.readFile( "../resources/original-edited.html" );
     }
     catch ( const parser_exception &e )
     {
@@ -29,11 +29,11 @@ int main()
 
     std::cout << "Info: Scan successful. File was opened and closed without errors." << std::endl;
 
-    Parser* parser = new Parser( scanner->getTokens() );
+    Parser& parser = *( new Parser( scanner.getTokens() ) );
 
     try
     {
-        parser->parse();
+        parser.parse();
     }
     catch( const parser_exception& e )
     {
@@ -43,11 +43,11 @@ int main()
 
     std::cout << "Info: Parse successful. HTML file is valid." << std::endl;
 
-    Writer* writer = new Writer( parser->getTree() );
+    Writer& writer = *( new Writer( parser.getTree() ) );
 
     try
     {
-        writer->write( "./output.txt" );
+        writer.write( "./output.txt" );
     }
     catch( const parser_exception& e )
     {
@@ -57,7 +57,11 @@ int main()
 
     std::cout << "Info: Write successful. Output file was saved correctly." << std::endl;
 
-    printTokens( scanner->getTokens() );
+    printTokens( scanner.getTokens() );
+
+    delete &scanner;
+    delete &parser;
+    delete &writer;
 
     return 0;
 }

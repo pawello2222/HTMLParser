@@ -31,7 +31,7 @@ struct Token
         this->value = _value;
     }
 
-    std::string decription( TokenName tokenName )
+    std::string description( TokenName tokenName )
     {
         switch ( tokenName )
         {

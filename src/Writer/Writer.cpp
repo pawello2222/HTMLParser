@@ -4,11 +4,6 @@
 
 #include "Writer.h"
 
-Writer::Writer( Tree* _tree )
-{
-    this->tree = _tree;
-}
-
 void Writer::write( std::string path )
 {
     generateJSONTree();
