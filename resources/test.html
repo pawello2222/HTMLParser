@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html>
 <!-- Le styles -->
+<script>
+    for (i = Math.max(2, page-2); i <= Math.min(pages-1, page+2); i++) {
+        out += '<li><a'+alert_current_page(i, page)+' href="#">' + i + '</a></li>';
+    }
+</script>
 <head    >
  <style>
  </style>

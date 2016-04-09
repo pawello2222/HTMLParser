@@ -22,7 +22,7 @@ void OrderedDict::print()
         std::cout << it->decription( it->name ) << " " << it->value << std::endl;
 }
 
-Token* OrderedDict::getToken( int index )
+Token* OrderedDict::getToken( long index )
 {
     if ( index >= orderedData.size() )
         return nullptr;

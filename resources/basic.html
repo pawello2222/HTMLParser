@@ -14,6 +14,46 @@
 <!-- Le styles -->
 <body>
 
+<script>
+    function paginationbar(pages, page) {
+        if (pages === 0) return "";
+
+        function alert_current_page (i, page) {
+            if (i == page) return ' style="background-color: #D9EDF7"';
+            return '';
+        }
+
+        var out = '';
+        out += '<li><a'+alert_current_page(1, page)+' href="#">1</a></li>';
+
+        if (page-2 > 2) out += '<li><span>...</span></li>';
+
+        for (i = Math.max(2, page-2); i <= Math.min(pages-1, page+2); i++) {
+            out += '<li><a'+alert_current_page(i, page)+' href="#">' + i + '</a></li>';
+        }
+
+        if (page+2 < pages-1) out += '<li><span>...</span></li>';
+
+        if (pages > 1)
+            out += '<li><a'+alert_current_page(pages, page)+' href="#">' + pages + '</a></li>';
+        return out;
+    }
+    function load_chunck(pid, pagenum) {
+        $("#process_"+pid+" div.calltable").load("/analysis/chunk/Y2FlZWEzODJhODJhNDE2NGI5OTIyNjc0NDZhODNjMjY/"+pid+"/"+pagenum+"/", function(data, status, xhr){
+            if (status == "error") {
+                $("#process_"+pid+" div.calltable").html("Error loading data. Please reload the page and if the error persists contact us.");
+            }
+            else {
+                $("#process_"+pid+" div.pagination ul").html(paginationbar(parseInt($("#process_"+pid).data('length')), pagenum));
+                $("#process_"+pid+" div.pagination a").click(function(e) {
+                    var t = $(e.target);
+                    load_chunck(t.parents("#process_"+pid).data('pid'), parseInt(t.text()));
+                });
+            }
+        });
+    }
+</script>
+
 <div class="cities">
     <h2>London</h2>
 

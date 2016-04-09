@@ -25,6 +25,13 @@ enum ReadState
     READ_COMMENT = 4
 };
 
+enum ScriptState
+{
+    NO_SCRIPT = 0,
+    READ_SCRIPT = 1,
+    READ_QUOTED_TEXT = 2,
+};
+
 void Scanner::readFile( const std::string& path )
 {
     std::ifstream file( path );
@@ -35,6 +42,7 @@ void Scanner::readFile( const std::string& path )
     std::string str = "";
 
     ReadState state = ReadState::READ_TEXT;
+    ScriptState scriptState = ScriptState::NO_SCRIPT;
 
     while ( !file.eof() )
     {
@@ -44,35 +52,61 @@ void Scanner::readFile( const std::string& path )
 
         if ( state == ReadState::READ_TEXT )
         {
-            //todo: after ' sign read input until continuously until next ' sign
+            if ( scriptState != ScriptState::NO_SCRIPT )
+            {
+                if ( c == '\'' )
+                {
+                    if ( scriptState == ScriptState::READ_SCRIPT )
+                        scriptState = ScriptState::READ_QUOTED_TEXT;
+                    else
+                        scriptState = ScriptState::READ_SCRIPT;
+                    str += c;
+                    continue;
+                }
+
+
+                if ( !( c == '<' && scriptState != ScriptState::READ_QUOTED_TEXT ) )
+                {
+                    str += c;
+                    continue;
+                }
+
+                char tmp;
+                file.get( tmp );
+                if ( tmp != '/' )
+                {
+                    str = str + c + tmp;
+                    continue;
+                }
+                file.unget();
+                scriptState = ScriptState::NO_SCRIPT;
+            }
 
             if ( c != '<' )
             {
                 str += c;
                 continue;
             }
+
+            if ( str != "" )
+            {
+                addToken( TokenName::PLAIN_TEXT, str );
+                str = "";
+            }
+
+            file.get( c );
+
+            if ( c == '/' )
+            {
+                addToken( TokenName::OPEN_END_TAG, "" );
+            }
             else
             {
-                if ( str != "" )
-                {
-                    addToken( TokenName::PLAIN_TEXT, str );
-                    str = "";
-                }
-
-                file.get( c );
-
-                if ( c == '/' )
-                {
-                    addToken( TokenName::OPEN_END_TAG, "" );
-                }
-                else
-                {
-                    addToken( TokenName::OPEN_BEGIN_TAG, "" );
-                    file.unget();
-                }
-
-                state = ReadState::READ_TAG;
+                addToken( TokenName::OPEN_BEGIN_TAG, "" );
+                file.unget();
             }
+
+            state = ReadState::READ_TAG;
         }
         else if ( state == ReadState::READ_COMMENT )
         {
@@ -81,25 +115,23 @@ void Scanner::readFile( const std::string& path )
                 str += c;
                 continue;
             }
-            else
+
+            file.get( c );
+            if ( c == '-' )
             {
                 file.get( c );
-                if ( c == '-' )
+                if ( c == '>' )
                 {
-                    file.get( c );
-                    if ( c == '>' )
-                    {
-                        addToken( TokenName::ATTRIBUTE_NAME, str );
-                        str = "";
-                        addToken( TokenName::CLOSE_TAG, "" );
-                        state = ReadState::READ_TEXT;
-                    }
-                    else
-                        str += c;
+                    addToken( TokenName::ATTRIBUTE_NAME, str );
+                    str = "";
+                    addToken( TokenName::CLOSE_TAG, "" );
+                    state = ReadState::READ_TEXT;
                 }
                 else
                     str += c;
             }
+            else
+                str += c;
         }
         else if ( state != ReadState::READ_VALUE )
         {
@@ -109,70 +141,70 @@ void Scanner::readFile( const std::string& path )
                 str += c;
                 continue;
             }
-            else
-            {
-                if ( str != "" )
-                {
-                    if ( state == ReadState::READ_TAG )
-                    {
-                        addToken( TokenName::TAG_ID, str );
-                        state = ReadState::READ_TAG_INSIDE;
-                    }
-                    else
-                        addToken( TokenName::ATTRIBUTE_NAME, str );
-                    str = "";
-                }
 
-                if ( c == '!' )
+            if ( str != "" )
+            {
+                if ( state == ReadState::READ_TAG )
+                {
+                    if ( str == "script" && tokens->getToken( tokens->getSize() - 1 )->name != TokenName::OPEN_END_TAG )
+                        scriptState = ScriptState::READ_SCRIPT;
+                    addToken( TokenName::TAG_ID, str );
+                    state = ReadState::READ_TAG_INSIDE;
+                }
+                else
+                    addToken( TokenName::ATTRIBUTE_NAME, str );
+                str = "";
+            }
+
+            if ( c == '!' )
+            {
+                file.get( c );
+                if ( c == '-' )
                 {
                     file.get( c );
                     if ( c == '-' )
                     {
-                        file.get( c );
-                        if ( c == '-' )
-                        {
-                            addToken( TokenName::TAG_ID, "COMMENT" );
-                            state = ReadState::READ_COMMENT;
-                            continue;
-                        }
-                        else
-                            file.unget();
+                        addToken( TokenName::TAG_ID, "COMMENT" );
+                        state = ReadState::READ_COMMENT;
+                        continue;
                     }
                     else
                         file.unget();
                 }
-                else if ( c == '=' )
-                    addToken( TokenName::EQUAL_SIGN, "" );
-                else if ( c == ' ' )
-                {
-                    do
-                        file.get( c );
-                    while ( !file.eof() && c == ' ' );
+                else
                     file.unget();
+            }
+            else if ( c == '=' )
+                addToken( TokenName::EQUAL_SIGN, "" );
+            else if ( c == ' ' )
+            {
+                do
+                    file.get( c );
+                while ( !file.eof() && c == ' ' );
+                file.unget();
 
-                    addToken( TokenName::WHITESPACE, "" );
-                }
-                else if ( c == '>' )
+                addToken( TokenName::WHITESPACE, "" );
+            }
+            else if ( c == '>' )
+            {
+                addToken( TokenName::CLOSE_TAG, "" );
+                state = ReadState::READ_TEXT;
+            }
+            else if ( c == '/' )
+            {
+                file.get( c );
+                if ( c == '>' )
                 {
-                    addToken( TokenName::CLOSE_TAG, "" );
+                    addToken( TokenName::AUTO_CLOSE_TAG, "" );
                     state = ReadState::READ_TEXT;
                 }
-                else if ( c == '/' )
-                {
-                    file.get( c );
-                    if ( c == '>' )
-                    {
-                        addToken( TokenName::AUTO_CLOSE_TAG, "" );
-                        state = ReadState::READ_TEXT;
-                    }
-                    else
-                        file.unget();
-                }
-                else if ( c == '"' )
-                {
-                    addToken( TokenName::QUOTATION, "" );
-                    state = ReadState::READ_VALUE;
-                }
+                else
+                    file.unget();
+            }
+            else if ( c == '"' )
+            {
+                addToken( TokenName::QUOTATION, "" );
+                state = ReadState::READ_VALUE;
             }
         }
         else //if ( state == ReadState::READ_VALUE )

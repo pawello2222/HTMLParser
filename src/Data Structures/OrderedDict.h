@@ -18,7 +18,7 @@ public:
     void insert( Token token );
     void print();
 
-    Token* getToken( int index );
+    Token* getToken( long index );
     Token* getToken( std::string str );
 
     const long getSize() const;
