@@ -234,12 +234,6 @@ void Scanner::addToken( TokenName key, std::string value )
     tokens.push_back( new Token( key, value ) );
 }
 
-/*void Scanner::printTokens()
-{
-    //todo: print tokens
-    //tokens->print();
-}*/
-
 std::vector< Token* > Scanner::getTokens()
 {
     return tokens;

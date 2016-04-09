@@ -6,7 +6,12 @@
 #include "Parser/Parser.h"
 #include "Writer/Writer.h"
 
-using namespace std;
+void printTokens( std::vector< Token* > tokens )
+{
+    std::cout << "\n";
+    for ( auto token : tokens )
+        std::cout << token->decription( token->name ) << " " << token->value << std::endl;
+}
 
 int main()
 {
@@ -15,11 +20,10 @@ int main()
     try
     {
         scanner->readFile( "../resources/original-edited.html" );
-        //scanner->printTokens();
     }
     catch ( const parser_exception &e )
     {
-        std::cout << e.getMessage() << endl;
+        std::cout << e.getMessage() << std::endl;
         return -1;
     }
 
@@ -33,7 +37,7 @@ int main()
     }
     catch( const parser_exception& e )
     {
-        std::cout << e.getMessage() << endl;
+        std::cout << e.getMessage() << std::endl;
         return -1;
     }
 
@@ -47,11 +51,13 @@ int main()
     }
     catch( const parser_exception& e )
     {
-        std::cout << e.getMessage() << endl;
+        std::cout << e.getMessage() << std::endl;
         return -1;
     }
 
     std::cout << "Info: Write successful. Output file was saved correctly." << std::endl;
+
+    printTokens( scanner->getTokens() );
 
     return 0;
 }

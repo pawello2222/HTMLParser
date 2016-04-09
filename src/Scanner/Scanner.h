@@ -22,7 +22,6 @@ public:
 
     void readFile( const std::string& path );
 
-    //void printTokens();
     std::vector< Token* > getTokens();
 
 private:
