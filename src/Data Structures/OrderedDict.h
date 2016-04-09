@@ -19,7 +19,6 @@ public:
     void print();
 
     Token* getToken( long index );
-    Token* getToken( std::string str );
 
     const long getSize() const;
 

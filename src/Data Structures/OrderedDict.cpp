@@ -30,15 +30,6 @@ Token* OrderedDict::getToken( long index )
     return &orderedData[ index ];
 }
 
-Token* OrderedDict::getToken( std::string str )
-{
-    auto it = indexedData.find( str );
-    if ( it != indexedData.end() )
-        return &orderedData[ it->second ];
-    else
-        return nullptr;
-}
-
 const long OrderedDict::getSize() const
 {
     return orderedData.size();
