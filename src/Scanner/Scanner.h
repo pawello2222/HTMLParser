@@ -12,6 +12,7 @@
 #include <sstream>
 #include <vector>
 #include "../Data Structures/OrderedDict.h"
+#include "../Exceptions/Exceptions.h"
 
 class Scanner
 {

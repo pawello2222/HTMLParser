@@ -28,6 +28,8 @@ enum ReadState
 void Scanner::readFile( const std::string& path )
 {
     std::ifstream file( path );
+    if ( !file )
+        throw file_read_exception( "Error: Cannot open source file." );
 
     char c;
     std::string str = "";
@@ -42,6 +44,8 @@ void Scanner::readFile( const std::string& path )
 
         if ( state == ReadState::READ_TEXT )
         {
+            //todo: after ' sign read input until continuously until next ' sign
+
             if ( c != '<' )
             {
                 str += c;
@@ -99,7 +103,8 @@ void Scanner::readFile( const std::string& path )
         }
         else if ( state != ReadState::READ_VALUE )
         {
-            if ( specialCharacters.find( c ) == std::string::npos )
+            if ( specialCharacters.find( c ) == std::string::npos
+                 || ( state == ReadState::READ_TAG_INSIDE && c == '-' ) )
             {
                 str += c;
                 continue;
