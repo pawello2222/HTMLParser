@@ -5,6 +5,7 @@
 #ifndef HTMLPARSER_PARSER_H
 #define HTMLPARSER_PARSER_H
 
+#include <sstream>
 #include <string>
 #include <vector>
 #include "../Data Structures/OrderedDict.h"

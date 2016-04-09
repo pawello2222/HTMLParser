@@ -3,7 +3,7 @@
 //
 
 #include "Parser.h"
-#include "../Exceptions/ParserExceptions.h"
+#include "../Exceptions/Exceptions.h"
 
 Parser::Parser( OrderedDict* _tokens )
 {
@@ -16,12 +16,22 @@ Parser::Parser( OrderedDict* _tokens )
 void Parser::parse()
 {
     if ( !parseDoctype() )
-        throw new parser_exception::doctype_exception();
+        throw parser_exception( "Error: Invalid DOCTYPE tag." );
 
     while ( currIndex < tokens->getSize() )
     {
         if ( !parseNode() )
-            throw new parser_exception::node_exception();
+        {
+            std::stringstream msg;
+            msg << "Error: Invalid tag at index " << currIndex << "\nIndex " << currIndex - 1 << ": Name: "
+                << tokens->getToken( currIndex - 1 )->decription( tokens->getToken( currIndex - 1 )->name )
+                << " Value: " << tokens->getToken( currIndex - 1 )->value << "\nIndex " << currIndex << ": Name: "
+                << tokens->getToken( currIndex )->decription( tokens->getToken( currIndex )->name )
+                << " Value: " << tokens->getToken( currIndex )->value << "\nIndex " << currIndex + 1 << ": Name: "
+                << tokens->getToken( currIndex + 1 )->decription( tokens->getToken( currIndex + 1 )->name )
+                << " Value: " << tokens->getToken( currIndex + 1 )->value;
+            throw parser_exception( msg.str() );
+        }
     }
 }
 
