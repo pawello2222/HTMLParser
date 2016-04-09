@@ -53,6 +53,7 @@ struct Node
 
 struct Tree
 {
+    //todo: proper delete
     ~Tree()
     {
         root.attributes.clear();
