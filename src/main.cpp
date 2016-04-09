@@ -60,6 +60,7 @@ int main()
     printTokens( scanner.getTokens() );
 
     //todo: proper delete
+
     /*delete &scanner;
     delete &parser;
     delete &writer;*/
