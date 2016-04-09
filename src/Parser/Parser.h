@@ -54,12 +54,12 @@ struct Node
 struct Tree
 {
     //todo: proper delete
-    ~Tree()
+    /*~Tree()
     {
         root.attributes.clear();
         root.nodes.clear();
         root.parent = nullptr;
-    }
+    }*/
 
     Node root;
     std::string doctype;
