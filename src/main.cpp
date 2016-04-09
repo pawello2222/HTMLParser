@@ -4,6 +4,7 @@
 
 #include "Scanner/Scanner.h"
 #include "Parser/Parser.h"
+#include "Writer/Writer.h"
 
 using namespace std;
 
@@ -13,9 +14,10 @@ int main()
 
     try
     {
-        scanner->readFile( "../resources/original.html" );
+        scanner->readFile( "../resources/test.html" );
+        //scanner->printTokens();
     }
-    catch ( const file_read_exception &e )
+    catch ( const parser_exception &e )
     {
         std::cout << e.getMessage() << endl;
         return -1;
@@ -37,12 +39,19 @@ int main()
 
     std::cout << "Info: Parse successful. HTML file is valid." << std::endl;
 
+    Writer* writer = new Writer( parser->getTree() );
 
+    try
+    {
+        writer->write( "./output.txt" );
+    }
+    catch( const parser_exception& e )
+    {
+        std::cout << e.getMessage() << endl;
+        return -1;
+    }
 
-
-    auto tmp = parser->getTree();
-
-    //scanner->printTokens();
+    std::cout << "Info: Write successful. Output file was saved correctly." << std::endl;
 
     return 0;
 }

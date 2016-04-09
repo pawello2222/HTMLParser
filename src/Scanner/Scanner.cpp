@@ -36,7 +36,7 @@ void Scanner::readFile( const std::string& path )
 {
     std::ifstream file( path );
     if ( !file )
-        throw file_read_exception( "Error: Cannot open source file." );
+        throw parser_exception( "Error: Cannot open source file." );
 
     char c;
     std::string str = "";
