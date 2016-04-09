@@ -7,10 +7,12 @@
       <sourceFolder url="file://$MODULE_DIR$/src/Data Structures/Token.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Data Structures/OrderedDict.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/Parser/Parser.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/Parser/Parser.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Scanner/Scanner.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Scanner/Scanner.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/Parser/Parser.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/Parser/Parser.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/Writer/Writer.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/Writer/Writer.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Exceptions/Exceptions.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Exceptions/Exceptions.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
