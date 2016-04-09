@@ -67,6 +67,8 @@ public:
 
     void parse();
 
+    Tree* getTree();
+
 private:
     bool parseDoctype();
     bool parseNode();

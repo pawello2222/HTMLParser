@@ -239,14 +239,6 @@ void Scanner::printTokens()
     tokens->print();
 }
 
-/*void Scanner::getTokenValue( std::string value )
-{
-    if ( tokens->getToken( value ).name == "" )
-        return;
-
-    std::cout << tokens->getToken( value ).value << std::endl;
-}*/
-
 OrderedDict* Scanner::getTokens()
 {
     return tokens;

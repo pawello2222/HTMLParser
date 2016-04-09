@@ -4,7 +4,6 @@
 
 #include "Scanner/Scanner.h"
 #include "Parser/Parser.h"
-#include "Exceptions/Exceptions.h"
 
 using namespace std;
 
@@ -38,6 +37,10 @@ int main()
 
     std::cout << "Info: Parse successful. HTML file is valid." << std::endl;
 
+
+
+
+    auto tmp = parser->getTree();
 
     //scanner->printTokens();
 

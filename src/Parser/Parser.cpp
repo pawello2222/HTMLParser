@@ -77,10 +77,11 @@ bool Parser::parseNode()
                     return false;
             }
 
-            currNode->nodes.push_back( new Node( Identifier::TAG, tokens->getToken( currIndex++ )->value ) );
+            currNode->nodes.push_back( new Node( Identifier::TAG, tokens->getToken( currIndex )->value ) );
             currNode->nodes.back()->parent = currNode;
             currNode = currNode->nodes.back();
 
+            ++currIndex;
             while ( readToken( currIndex, TokenName::WHITESPACE ) )
             {
                 if ( !readToken( ++currIndex, TokenName::CLOSE_TAG )
@@ -93,7 +94,10 @@ bool Parser::parseNode()
 
             if ( readToken( currIndex, TokenName::CLOSE_TAG ) )
             {
-                ++currIndex;
+                if ( currNode->name == "link" || currNode->name == "meta" )
+                    currNode = currNode->parent;
+
+                    ++currIndex;
                 return true;
             }
             else if ( readToken( currIndex, TokenName::AUTO_CLOSE_TAG ) )
@@ -151,6 +155,11 @@ bool Parser::parseAttribute()
     }
 
     return false;
+}
+
+Tree* Parser::getTree()
+{
+    return tree;
 }
 
 bool Parser::readToken( int index, TokenName name )
