@@ -14,7 +14,7 @@ int main()
 
     try
     {
-        scanner->readFile( "../resources/test.html" );
+        scanner->readFile( "../resources/original-edited.html" );
         //scanner->printTokens();
     }
     catch ( const parser_exception &e )

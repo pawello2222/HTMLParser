@@ -11,6 +11,8 @@ Writer::Writer( Tree* _tree )
 
 void Writer::write( std::string path )
 {
+    generateJSONTree();
+
     std::ofstream file( path );
     if ( !file )
         throw parser_exception( "Error: Cannot open output file." );
