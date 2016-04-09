@@ -6,14 +6,14 @@
 
 Scanner::Scanner()
 {
-    tokens = new OrderedDict();
+    tokens.clear();
 
     specialCharacters = "</> !=-\"";
 }
 
 Scanner::~Scanner()
 {
-    delete tokens;
+    //todo: delete tokens
 }
 
 enum ReadState
@@ -146,7 +146,7 @@ void Scanner::readFile( const std::string& path )
             {
                 if ( state == ReadState::READ_TAG )
                 {
-                    if ( str == "script" && tokens->getToken( tokens->getSize() - 1 )->name != TokenName::OPEN_END_TAG )
+                    if ( str == "script" && tokens.back()->name != TokenName::OPEN_END_TAG )
                         scriptState = ScriptState::READ_SCRIPT;
                     addToken( TokenName::TAG_ID, str );
                     state = ReadState::READ_TAG_INSIDE;
@@ -231,15 +231,16 @@ void Scanner::readFile( const std::string& path )
 
 void Scanner::addToken( TokenName key, std::string value )
 {
-    tokens->insert( Token( key, value ) );
+    tokens.push_back( new Token( key, value ) );
 }
 
-void Scanner::printTokens()
+/*void Scanner::printTokens()
 {
-    tokens->print();
-}
+    //todo: print tokens
+    //tokens->print();
+}*/
 
-OrderedDict* Scanner::getTokens()
+std::vector< Token* > Scanner::getTokens()
 {
     return tokens;
 }

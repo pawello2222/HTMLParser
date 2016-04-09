@@ -11,7 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include "../Data Structures/OrderedDict.h"
+#include "../Data Structures/Token.h"
 #include "../Exceptions/Exceptions.h"
 
 class Scanner
@@ -22,12 +22,12 @@ public:
 
     void readFile( const std::string& path );
 
-    void printTokens();
-    OrderedDict* getTokens();
+    //void printTokens();
+    std::vector< Token* > getTokens();
 
 private:
     void addToken( TokenName key, std::string value );
-    OrderedDict* tokens;
+    std::vector< Token* > tokens;
 
     std::string specialCharacters;
 };

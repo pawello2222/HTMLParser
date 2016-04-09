@@ -5,7 +5,7 @@
 #include "Parser.h"
 #include "../Exceptions/Exceptions.h"
 
-Parser::Parser( OrderedDict* _tokens )
+Parser::Parser( std::vector< Token* > _tokens )
 {
     this->tree = new Tree();
     this->tokens = _tokens;
@@ -18,18 +18,18 @@ void Parser::parse()
     if ( !parseDoctype() )
         throw parser_exception( "Error: Invalid DOCTYPE tag." );
 
-    while ( currIndex < tokens->getSize() )
+    while ( currIndex < tokens.size() )
     {
         if ( !parseNode() )
         {
             std::stringstream msg;
             msg << "Error: Invalid tag at index " << currIndex << "\nIndex " << currIndex - 1 << ": Name: "
-                << tokens->getToken( currIndex - 1 )->decription( tokens->getToken( currIndex - 1 )->name )
-                << " Value: " << tokens->getToken( currIndex - 1 )->value << "\nIndex " << currIndex << ": Name: "
-                << tokens->getToken( currIndex )->decription( tokens->getToken( currIndex )->name )
-                << " Value: " << tokens->getToken( currIndex )->value << "\nIndex " << currIndex + 1 << ": Name: "
-                << tokens->getToken( currIndex + 1 )->decription( tokens->getToken( currIndex + 1 )->name )
-                << " Value: " << tokens->getToken( currIndex + 1 )->value;
+                << tokens.at( currIndex - 1 )->decription( tokens.at( currIndex - 1 )->name )
+                << " Value: " << tokens.at( currIndex - 1 )->value << "\nIndex " << currIndex << ": Name: "
+                << tokens.at( currIndex )->decription( tokens.at( currIndex )->name )
+                << " Value: " << tokens.at( currIndex )->value << "\nIndex " << currIndex + 1 << ": Name: "
+                << tokens.at( currIndex + 1 )->decription( tokens.at( currIndex + 1 )->name )
+                << " Value: " << tokens.at( currIndex + 1 )->value;
             throw parser_exception( msg.str() );
         }
     }
@@ -37,13 +37,16 @@ void Parser::parse()
 
 bool Parser::parseDoctype()
 {
+    if ( readToken( currIndex, TokenName::PLAIN_TEXT ) )
+        ++currIndex;
+
     if ( readToken( currIndex, TokenName::OPEN_BEGIN_TAG ) )
     {
         if ( readToken( ++currIndex, TokenName::TAG_ID, "DOCTYPE" )
              && readToken( ++currIndex, TokenName::WHITESPACE )
              && readToken( ++currIndex, TokenName::ATTRIBUTE_NAME ) )
         {
-            tree->doctype = tokens->getToken( currIndex )->value;
+            tree->doctype = tokens.at( currIndex )->value;
 
             if ( readToken( ++currIndex, TokenName::CLOSE_TAG ) )
             {
@@ -62,10 +65,10 @@ bool Parser::parseNode()
     {
         if ( readToken( ++currIndex, TokenName::TAG_ID ) )
         {
-            if ( tokens->getToken( currIndex )->value == "COMMENT"
+            if ( tokens.at( currIndex )->value == "COMMENT"
                  && readToken( ++currIndex, TokenName::ATTRIBUTE_NAME ) )
             {
-                currNode->nodes.push_back( new Node( Identifier::COMMENT, tokens->getToken( currIndex )->value ) );
+                currNode->nodes.push_back( new Node( Identifier::COMMENT, tokens.at( currIndex )->value ) );
                 currNode->nodes.back()->parent = currNode;
 
                 if ( readToken( ++currIndex, TokenName::CLOSE_TAG ) )
@@ -77,7 +80,7 @@ bool Parser::parseNode()
                     return false;
             }
 
-            currNode->nodes.push_back( new Node( Identifier::TAG, tokens->getToken( currIndex )->value ) );
+            currNode->nodes.push_back( new Node( Identifier::TAG, tokens.at( currIndex )->value ) );
             currNode->nodes.back()->parent = currNode;
             currNode = currNode->nodes.back();
 
@@ -127,7 +130,8 @@ bool Parser::parseNode()
     }
     else if ( readToken( currIndex, TokenName::PLAIN_TEXT ) )
     {
-        currNode->nodes.push_back( new Node( Identifier::TEXT, tokens->getToken( currIndex++ )->value ) );
+        currNode->nodes.push_back( new Node( Identifier::TEXT, tokens.at( currIndex++ )->value ) );
+        currNode->nodes.back()->parent = currNode;
         return true;
     }
 
@@ -138,13 +142,13 @@ bool Parser::parseAttribute()
 {
     if ( readToken( currIndex, TokenName::ATTRIBUTE_NAME ) )
     {
-        std::string tmp = tokens->getToken( currIndex )->value;
+        std::string tmp = tokens.at( currIndex )->value;
 
         if ( readToken( ++currIndex, TokenName::EQUAL_SIGN )
              && readToken( ++currIndex, TokenName::QUOTATION )
              && readToken( ++currIndex, TokenName::ATTRIBUTE_VALUE ) )
         {
-            currNode->attributes.push_back( new Attribute( tmp, tokens->getToken( currIndex )->value ) );
+            currNode->attributes.push_back( new Attribute( tmp, tokens.at( currIndex )->value ) );
 
             if ( readToken( ++currIndex, TokenName::QUOTATION ) )
             {
@@ -162,13 +166,13 @@ Tree* Parser::getTree()
     return tree;
 }
 
-bool Parser::readToken( int index, TokenName name )
+bool Parser::readToken( unsigned long index, TokenName name )
 {
-    return tokens->getToken( index )->name == name;
+    return tokens.at( index )->name == name;
 }
 
-bool Parser::readToken( int index, TokenName name, std::string value )
+bool Parser::readToken( unsigned long index, TokenName name, std::string value )
 {
-    return tokens->getToken( index )->name == name
-         && tokens->getToken( index )->value == value;
+    return tokens.at( index )->name == name
+         && tokens.at( index )->value == value;
 }

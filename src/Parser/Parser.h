@@ -8,7 +8,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include "../Data Structures/OrderedDict.h"
+#include "../Data Structures/Token.h"
 
 enum Identifier
 {
@@ -63,7 +63,7 @@ public:
 class Parser
 {
 public:
-    Parser( OrderedDict* _tokens );
+    Parser( std::vector< Token* > _tokens );
 
     void parse();
 
@@ -74,14 +74,14 @@ private:
     bool parseNode();
     bool parseAttribute();
 
-    bool readToken( int index, TokenName name );
-    bool readToken( int index, TokenName name, std::string value );
+    bool readToken( unsigned long index, TokenName name );
+    bool readToken( unsigned long index, TokenName name, std::string value );
 
     Tree* tree;
-    OrderedDict* tokens;
+    std::vector< Token* > tokens;
 
     Node* currNode;
-    int currIndex;
+    unsigned long currIndex;
 };
 
 
