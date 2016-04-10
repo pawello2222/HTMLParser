@@ -3,175 +3,177 @@
 //
 
 #include "Parser.h"
-#include "../Exceptions/Exceptions.h"
 
-Parser::Parser( std::vector< Token >& _tokens ) : tokens( _tokens )
+namespace parser
 {
-    this->tree.root = Node( Identifier::ROOT, "" );
-    this->currNode = &tree.root;
-    this->currIndex = 0;
-}
-
-void Parser::parse()
-{
-    if ( !parseDoctype() )
-        throw parser_exception( "Error: Invalid DOCTYPE tag." );
-
-    while ( currIndex < tokens.size() )
+    Parser::Parser( Tokens& _tokens ) : tokens( _tokens )
     {
-        if ( !parseNode() )
-        {
-            std::stringstream msg;
-            msg << "Error: Invalid tag at index " << currIndex << "\nIndex " << currIndex - 1 << ": Name: "
-                << tokens.at( currIndex - 1 ).description( tokens.at( currIndex - 1 ).name )
-                << " Value: " << tokens.at( currIndex - 1 ).value << "\nIndex " << currIndex << ": Name: "
-                << tokens.at( currIndex ).description( tokens.at( currIndex ).name )
-                << " Value: " << tokens.at( currIndex ).value << "\nIndex " << currIndex + 1 << ": Name: "
-                << tokens.at( currIndex + 1 ).description( tokens.at( currIndex + 1 ).name )
-                << " Value: " << tokens.at( currIndex + 1 ).value;
-            throw parser_exception( msg.str() );
-        }
+        this->tree.setRoot( std::shared_ptr< HTMLNode >( new HTMLNode( Id::ROOT, "" ) ) );
+        this->currNode = tree.getRoot();
+        this->currIndex = 0;
     }
-}
 
-bool Parser::parseDoctype()
-{
-    if ( readToken( currIndex, TokenName::PLAIN_TEXT ) )
-        ++currIndex;
-
-    if ( readToken( currIndex, TokenName::OPEN_BEGIN_TAG ) )
+    void Parser::parse()
     {
-        if ( readToken( ++currIndex, TokenName::TAG_ID, "DOCTYPE" )
-             && readToken( ++currIndex, TokenName::WHITESPACE )
-             && readToken( ++currIndex, TokenName::ATTRIBUTE_NAME ) )
-        {
-            tree.doctype = tokens.at( currIndex ).value;
+        if ( !parseDoctype() )
+            throw exceptions::parser_exception( "Error: Invalid DOCTYPE tag." );
 
-            if ( readToken( ++currIndex, TokenName::CLOSE_TAG ) )
+        while ( currIndex < tokens.size() )
+        {
+            if ( !parseNode() )
             {
-                ++currIndex;
-                return true;
+                std::stringstream msg;
+                msg << "Error: Invalid tag at index " << currIndex << "\nIndex " << currIndex - 1 << ": Name: "
+                << tokens.at( currIndex - 1 ).get()->description( tokens.at( currIndex - 1 ).get()->getName() )
+                << " Value: " << tokens.at( currIndex - 1 ).get()->getValue() << "\nIndex " << currIndex << ": Name: "
+                << tokens.at( currIndex ).get()->description( tokens.at( currIndex ).get()->getName() )
+                << " Value: " << tokens.at( currIndex ).get()->getValue() << "\nIndex " << currIndex + 1 << ": Name: "
+                << tokens.at( currIndex + 1 ).get()->description( tokens.at( currIndex + 1 ).get()->getName() )
+                << " Value: " << tokens.at( currIndex + 1 ).get()->getValue();
+                throw exceptions::parser_exception( msg.str() );
             }
         }
     }
 
-    return false;
-}
-
-bool Parser::parseNode()
-{
-    if ( readToken( currIndex, TokenName::OPEN_BEGIN_TAG ) )
+    bool Parser::parseDoctype()
     {
-        if ( readToken( ++currIndex, TokenName::TAG_ID ) )
-        {
-            if ( tokens.at( currIndex ).value == "COMMENT"
-                 && readToken( ++currIndex, TokenName::ATTRIBUTE_NAME ) )
-            {
-                currNode->nodes.push_back( Node( Identifier::COMMENT, tokens.at( currIndex ).value ) );
-                currNode->nodes.back().parent = currNode;
+        if ( readToken( currIndex, TokenId::PLAIN_TEXT ) )
+            ++currIndex;
 
-                if ( readToken( ++currIndex, TokenName::CLOSE_TAG ) )
+        if ( readToken( currIndex, TokenId::OPEN_BEGIN_TAG ) )
+        {
+            if ( readToken( ++currIndex, TokenId::TAG_ID, "DOCTYPE" )
+                 && readToken( ++currIndex, TokenId::WHITESPACE )
+                 && readToken( ++currIndex, TokenId::ATTRIBUTE_NAME ) )
+            {
+                tree.setDoctype( tokens.at( currIndex ).get()->getValue() );
+
+                if ( readToken( ++currIndex, TokenId::CLOSE_TAG ) )
                 {
                     ++currIndex;
                     return true;
                 }
-                else
-                    return false;
             }
+        }
 
-            currNode->nodes.push_back( Node( Identifier::TAG, tokens.at( currIndex ).value ) );
-            currNode->nodes.back().parent = currNode;
-            currNode = &currNode->nodes.back();
+        return false;
+    }
 
-            ++currIndex;
-            while ( readToken( currIndex, TokenName::WHITESPACE ) )
+    bool Parser::parseNode()
+    {
+        if ( readToken( currIndex, TokenId::OPEN_BEGIN_TAG ) )
+        {
+            if ( readToken( ++currIndex, TokenId::TAG_ID ) )
             {
-                if ( !readToken( ++currIndex, TokenName::CLOSE_TAG )
-                     && !readToken( currIndex, TokenName::AUTO_CLOSE_TAG ) )
+                if ( tokens.at( currIndex ).get()->getValue() == "COMMENT"
+                     && readToken( ++currIndex, TokenId::ATTRIBUTE_NAME ) )
                 {
-                    if ( !parseAttribute() )
+                    currNode->getNodes().push_back( std::shared_ptr< HTMLNode >( new HTMLNode( Id::COMMENT, tokens.at( currIndex ).get()->getValue() ) ) );
+                    currNode->getNodes().back().get()->setParent( currNode );
+
+                    if ( readToken( ++currIndex, TokenId::CLOSE_TAG ) )
+                    {
+                        ++currIndex;
+                        return true;
+                    }
+                    else
                         return false;
                 }
-            }
 
-            if ( readToken( currIndex, TokenName::CLOSE_TAG ) )
-            {
-                if ( currNode->name == "link" || currNode->name == "meta" )
-                    currNode = currNode->parent;
+                currNode->getNodes().push_back( std::shared_ptr< HTMLNode >( new HTMLNode( Id::TAG, tokens.at( currIndex ).get()->getValue() ) ) );
+                currNode->getNodes().back().get()->setParent( currNode );
+                currNode = currNode->getNodes().back();
+
+                ++currIndex;
+                while ( readToken( currIndex, TokenId::WHITESPACE ) )
+                {
+                    if ( !readToken( ++currIndex, TokenId::CLOSE_TAG )
+                         && !readToken( currIndex, TokenId::AUTO_CLOSE_TAG ) )
+                    {
+                        if ( !parseAttribute() )
+                            return false;
+                    }
+                }
+
+                if ( readToken( currIndex, TokenId::CLOSE_TAG ) )
+                {
+                    if ( currNode->getName() == "link" || currNode->getName() == "meta" )
+                        currNode = currNode->getParent();
 
                     ++currIndex;
-                return true;
-            }
-            else if ( readToken( currIndex, TokenName::AUTO_CLOSE_TAG ) )
-            {
-                currNode = currNode->parent;
-                ++currIndex;
-                return true;
+                    return true;
+                }
+                else if ( readToken( currIndex, TokenId::AUTO_CLOSE_TAG ) )
+                {
+                    currNode = currNode->getParent();
+                    ++currIndex;
+                    return true;
+                }
             }
         }
-    }
-    else if ( readToken( currIndex, TokenName::OPEN_END_TAG ) )
-    {
-        if ( readToken( ++currIndex, TokenName::TAG_ID ) )
+        else if ( readToken( currIndex, TokenId::OPEN_END_TAG ) )
         {
-            //todo: apparently wrong: ( <td> ... </th> )
-            /*if ( tokens->getToken( currIndex )->value != currNode->name )
-                return false;*/
-
-            currNode = currNode->parent;
-
-            if ( readToken( ++currIndex, TokenName::CLOSE_TAG ) )
+            if ( readToken( ++currIndex, TokenId::TAG_ID ) )
             {
-                ++currIndex;
-                return true;
+                //todo: apparently wrong: ( <td> ... </th> )
+                /*if ( tokens->getToken( currIndex )->getValue() != currNode->getName() )
+                    return false;*/
+
+                currNode = currNode->getParent();
+
+                if ( readToken( ++currIndex, TokenId::CLOSE_TAG ) )
+                {
+                    ++currIndex;
+                    return true;
+                }
             }
         }
-    }
-    else if ( readToken( currIndex, TokenName::PLAIN_TEXT ) )
-    {
-        currNode->nodes.push_back( Node( Identifier::TEXT, tokens.at( currIndex++ ).value ) );
-        currNode->nodes.back().parent = currNode;
-        return true;
-    }
-
-    return false;
-}
-
-bool Parser::parseAttribute()
-{
-    if ( readToken( currIndex, TokenName::ATTRIBUTE_NAME ) )
-    {
-        std::string tmp = tokens.at( currIndex ).value;
-
-        if ( readToken( ++currIndex, TokenName::EQUAL_SIGN )
-             && readToken( ++currIndex, TokenName::QUOTATION )
-             && readToken( ++currIndex, TokenName::ATTRIBUTE_VALUE ) )
+        else if ( readToken( currIndex, TokenId::PLAIN_TEXT ) )
         {
-            currNode->attributes.push_back( Attribute( tmp, tokens.at( currIndex ).value ) );
-
-            if ( readToken( ++currIndex, TokenName::QUOTATION ) )
-            {
-                ++currIndex;
-                return true;
-            }
+            currNode->getNodes().push_back( std::shared_ptr< HTMLNode >( new HTMLNode( Id::TEXT, tokens.at( currIndex ).get()->getValue() ) ) );
+            currNode->getNodes().back().get()->setParent( currNode );
+            return true;
         }
+
+        return false;
     }
 
-    return false;
-}
+    bool Parser::parseAttribute()
+    {
+        if ( readToken( currIndex, TokenId::ATTRIBUTE_NAME ) )
+        {
+            std::string tmp = tokens.at( currIndex ).get()->getValue();
 
-Tree& Parser::getTree()
-{
-    return tree;
-}
+            if ( readToken( ++currIndex, TokenId::EQUAL_SIGN )
+                 && readToken( ++currIndex, TokenId::QUOTATION )
+                 && readToken( ++currIndex, TokenId::ATTRIBUTE_VALUE ) )
+            {
+                currNode->getAttributes().push_back( std::shared_ptr< HTMLAttribute >( new HTMLAttribute( tmp, tokens.at( currIndex ).get()->getValue() ) ) );
 
-bool Parser::readToken( unsigned long index, TokenName name )
-{
-    return tokens.at( index ).name == name;
-}
+                if ( readToken( ++currIndex, TokenId::QUOTATION ) )
+                {
+                    ++currIndex;
+                    return true;
+                }
+            }
+        }
 
-bool Parser::readToken( unsigned long index, TokenName name, std::string value )
-{
-    return tokens.at( index ).name == name
-         && tokens.at( index ).value == value;
+        return false;
+    }
+
+    HTMLTree& Parser::getTree()
+    {
+        return tree;
+    }
+
+    bool Parser::readToken( unsigned long index, TokenId name )
+    {
+        return tokens.at( index ).get()->getName() == name;
+    }
+
+    bool Parser::readToken( unsigned long index, TokenId name, std::string value )
+    {
+        return tokens.at( index ).get()->getName() == name
+               && tokens.at( index ).get()->getValue() == value;
+    }
 }

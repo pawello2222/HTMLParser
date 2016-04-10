@@ -5,89 +5,49 @@
 #ifndef HTMLPARSER_PARSER_H
 #define HTMLPARSER_PARSER_H
 
+
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
+#include "../Data Structures/Tree.h"
 #include "../Data Structures/Token.h"
+#include "../Exceptions/Exceptions.h"
 
-enum Identifier
+namespace parser
 {
-    ROOT = 0,
-    TAG = 1,
-    TEXT = 2,
-    COMMENT = 3
-};
+    typedef data_structures::TokenName TokenId;
+    typedef data_structures::Identifier Id;
+    typedef data_structures::Tree HTMLTree;
+    typedef data_structures::Node HTMLNode;
+    typedef data_structures::Attribute HTMLAttribute;
 
-struct Attribute
-{
-    Attribute( std::string _name, std::string _value )
+    typedef std::shared_ptr< HTMLNode > NodePtr;
+    typedef std::shared_ptr< data_structures::Token > TokenPtr;
+    typedef std::vector< TokenPtr > Tokens;
+
+    class Parser
     {
-        this->name = _name;
-        this->value = _value;
-    }
+    public:
+        Parser( Tokens& _tokens );
 
-    std::string name;
-    std::string value;
-};
+        void parse();
 
-struct Node
-{
-    Node()
-    {
-        this->parent = nullptr;
-    }
+        HTMLTree& getTree();
 
-    Node( Identifier _identifier, std::string _name )
-    {
-        this->identifier = _identifier;
-        this->name = _name;
-        this->parent = nullptr;
-    }
+    private:
+        bool parseDoctype();
+        bool parseNode();
+        bool parseAttribute();
 
-    Identifier identifier;
-    std::string name;
-    std::vector< Node > nodes;
-    std::vector< Attribute > attributes;
-    Node* parent;
-};
+        bool readToken( unsigned long index, TokenId name );
+        bool readToken( unsigned long index, TokenId name, std::string value );
 
-struct Tree
-{
-    //todo: proper delete
-    /*~Tree()
-    {
-        root.attributes.clear();
-        root.nodes.clear();
-        root.parent = nullptr;
-    }*/
-
-    Node root;
-    std::string doctype;
-};
-
-class Parser
-{
-public:
-    Parser( std::vector< Token >& _tokens );
-
-    void parse();
-
-    Tree& getTree();
-
-private:
-    bool parseDoctype();
-    bool parseNode();
-    bool parseAttribute();
-
-    bool readToken( unsigned long index, TokenName name );
-    bool readToken( unsigned long index, TokenName name, std::string value );
-
-    Tree tree;
-    std::vector< Token >& tokens;
-
-    Node* currNode;
-    unsigned long currIndex;
-};
-
+        HTMLTree tree;
+        NodePtr currNode;
+        Tokens tokens;
+        unsigned long currIndex;
+    };
+}
 
 #endif //HTMLPARSER_PARSER_H

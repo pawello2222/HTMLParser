@@ -3,7 +3,7 @@
 //
 
 #include "Writer.h"
-
+/*
 void Writer::write( std::string path )
 {
     generateJSONTree();
@@ -21,3 +21,4 @@ void Writer::generateJSONTree()
 {
 
 }
+*/

@@ -8,27 +8,53 @@
 
 #include <string>
 #include <iostream>
+#include <memory>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include "../Data Structures/Token.h"
 #include "../Exceptions/Exceptions.h"
 
-class Scanner
+namespace scanner
 {
-public:
-    Scanner();
+    typedef std::shared_ptr< data_structures::Token > TokenPtr;
+    typedef std::vector< TokenPtr > Tokens;
+    typedef data_structures::TokenName TokenId;
 
-    void readFile( const std::string& path );
+    enum ReadState
+    {
+        READ_TAG = 0,
+        READ_TAG_INSIDE = 1,
+        READ_VALUE = 2,
+        READ_TEXT = 3,
+        READ_COMMENT = 4
+    };
 
-    std::vector< Token >& getTokens();
+    enum ScriptState
+    {
+        NO_SCRIPT = 0,
+        READ_SCRIPT = 1,
+        READ_QUOTED_TEXT = 2,
+    };
 
-private:
-    void addToken( TokenName key, std::string value );
-    std::vector< Token > tokens;
+    class Scanner
+    {
+    public:
+        Scanner();
+        ~Scanner();
 
-    std::string specialCharacters;
-};
+        void readFile( const std::string& path );
+
+        Tokens& getTokens();
+
+    private:
+        void addToken( data_structures::TokenName key, std::string value );
+
+        Tokens tokens;
+
+        std::string specialCharacters;
+    };
+}
 
 
 #endif //HTMLPARSER_SCANNER_H

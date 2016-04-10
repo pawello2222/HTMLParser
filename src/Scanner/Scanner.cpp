@@ -4,232 +4,224 @@
 
 #include "Scanner.h"
 
-Scanner::Scanner()
+namespace scanner
 {
-    tokens.clear();
-
-    specialCharacters = "</> !=-\"";
-}
-
-enum ReadState
-{
-    READ_TAG = 0,
-    READ_TAG_INSIDE = 1,
-    READ_VALUE = 2,
-    READ_TEXT = 3,
-    READ_COMMENT = 4
-};
-
-enum ScriptState
-{
-    NO_SCRIPT = 0,
-    READ_SCRIPT = 1,
-    READ_QUOTED_TEXT = 2,
-};
-
-void Scanner::readFile( const std::string& path )
-{
-    std::ifstream file( path );
-    if ( !file )
-        throw parser_exception( "Error: Cannot open source file." );
-
-    char c;
-    std::string str = "";
-
-    ReadState state = ReadState::READ_TEXT;
-    ScriptState scriptState = ScriptState::NO_SCRIPT;
-
-    while ( !file.eof() )
+    Scanner::Scanner()
     {
-        file.get( c );
-        if ( file.eof() )
-            break;
+        tokens.clear();
 
-        if ( state == ReadState::READ_TEXT )
+        specialCharacters = "</> !=-\"";
+    }
+
+    Scanner::~Scanner()
+    {
+        tokens.clear();
+    }
+
+    void Scanner::readFile( const std::string& path )
+    {
+        std::ifstream file( path );
+        if ( !file )
+            throw exceptions::parser_exception( "Error: Cannot open source file." );
+
+        char c;
+        std::string str = "";
+
+        ReadState state = ReadState::READ_TEXT;
+        ScriptState scriptState = ScriptState::NO_SCRIPT;
+
+        while ( !file.eof() )
         {
-            if ( scriptState != ScriptState::NO_SCRIPT )
+            file.get( c );
+            if ( file.eof() )
+                break;
+
+            if ( state == ReadState::READ_TEXT )
             {
-                if ( c == '\'' )
+                if ( scriptState != ScriptState::NO_SCRIPT )
                 {
-                    if ( scriptState == ScriptState::READ_SCRIPT )
-                        scriptState = ScriptState::READ_QUOTED_TEXT;
-                    else
-                        scriptState = ScriptState::READ_SCRIPT;
+                    if ( c == '\'' )
+                    {
+                        if ( scriptState == ScriptState::READ_SCRIPT )
+                            scriptState = ScriptState::READ_QUOTED_TEXT;
+                        else
+                            scriptState = ScriptState::READ_SCRIPT;
+                        str += c;
+                        continue;
+                    }
+
+
+                    if ( !( c == '<' && scriptState != ScriptState::READ_QUOTED_TEXT ) )
+                    {
+                        str += c;
+                        continue;
+                    }
+
+                    char tmp;
+                    file.get( tmp );
+                    if ( tmp != '/' )
+                    {
+                        str = str + c + tmp;
+                        continue;
+                    }
+                    file.unget();
+                    scriptState = ScriptState::NO_SCRIPT;
+                }
+
+                if ( c != '<' )
+                {
                     str += c;
                     continue;
                 }
 
-
-                if ( !( c == '<' && scriptState != ScriptState::READ_QUOTED_TEXT ) )
+                if ( str != "" )
                 {
-                    str += c;
-                    continue;
-                }
-
-                char tmp;
-                file.get( tmp );
-                if ( tmp != '/' )
-                {
-                    str = str + c + tmp;
-                    continue;
-                }
-                file.unget();
-                scriptState = ScriptState::NO_SCRIPT;
-            }
-
-            if ( c != '<' )
-            {
-                str += c;
-                continue;
-            }
-
-            if ( str != "" )
-            {
-                addToken( TokenName::PLAIN_TEXT, str );
-                str = "";
-            }
-
-            file.get( c );
-
-            if ( c == '/' )
-            {
-                addToken( TokenName::OPEN_END_TAG, "" );
-            }
-            else
-            {
-                addToken( TokenName::OPEN_BEGIN_TAG, "" );
-                file.unget();
-            }
-
-            state = ReadState::READ_TAG;
-        }
-        else if ( state == ReadState::READ_COMMENT )
-        {
-            if ( c != '-' )
-            {
-                str += c;
-                continue;
-            }
-
-            file.get( c );
-            if ( c == '-' )
-            {
-                file.get( c );
-                if ( c == '>' )
-                {
-                    addToken( TokenName::ATTRIBUTE_NAME, str );
+                    addToken( TokenId::PLAIN_TEXT, str );
                     str = "";
-                    addToken( TokenName::CLOSE_TAG, "" );
-                    state = ReadState::READ_TEXT;
                 }
-                else
-                    str += c;
-            }
-            else
-                str += c;
-        }
-        else if ( state != ReadState::READ_VALUE )
-        {
-            if ( specialCharacters.find( c ) == std::string::npos
-                 || ( state == ReadState::READ_TAG_INSIDE && c == '-' ) )
-            {
-                str += c;
-                continue;
-            }
 
-            if ( str != "" )
-            {
-                if ( state == ReadState::READ_TAG )
+                file.get( c );
+
+                if ( c == '/' )
                 {
-                    if ( str == "script" && tokens.back().name != TokenName::OPEN_END_TAG )
-                        scriptState = ScriptState::READ_SCRIPT;
-                    addToken( TokenName::TAG_ID, str );
-                    state = ReadState::READ_TAG_INSIDE;
+                    addToken( TokenId::OPEN_END_TAG, "" );
                 }
                 else
-                    addToken( TokenName::ATTRIBUTE_NAME, str );
-                str = "";
-            }
+                {
+                    addToken( TokenId::OPEN_BEGIN_TAG, "" );
+                    file.unget();
+                }
 
-            if ( c == '!' )
+                state = ReadState::READ_TAG;
+            }
+            else if ( state == ReadState::READ_COMMENT )
             {
+                if ( c != '-' )
+                {
+                    str += c;
+                    continue;
+                }
+
                 file.get( c );
                 if ( c == '-' )
                 {
                     file.get( c );
+                    if ( c == '>' )
+                    {
+                        addToken( TokenId::ATTRIBUTE_NAME, str );
+                        str = "";
+                        addToken( TokenId::CLOSE_TAG, "" );
+                        state = ReadState::READ_TEXT;
+                    }
+                    else
+                        str += c;
+                }
+                else
+                    str += c;
+            }
+            else if ( state != ReadState::READ_VALUE )
+            {
+                if ( specialCharacters.find( c ) == std::string::npos
+                     || ( state == ReadState::READ_TAG_INSIDE && c == '-' ) )
+                {
+                    str += c;
+                    continue;
+                }
+
+                if ( str != "" )
+                {
+                    if ( state == ReadState::READ_TAG )
+                    {
+                        if ( str == "script" && tokens.back().get()->getName() != TokenId::OPEN_END_TAG )
+                            scriptState = ScriptState::READ_SCRIPT;
+                        addToken( TokenId::TAG_ID, str );
+                        state = ReadState::READ_TAG_INSIDE;
+                    }
+                    else
+                        addToken( TokenId::ATTRIBUTE_NAME, str );
+                    str = "";
+                }
+
+                if ( c == '!' )
+                {
+                    file.get( c );
                     if ( c == '-' )
                     {
-                        addToken( TokenName::TAG_ID, "COMMENT" );
-                        state = ReadState::READ_COMMENT;
-                        continue;
+                        file.get( c );
+                        if ( c == '-' )
+                        {
+                            addToken( TokenId::TAG_ID, "COMMENT" );
+                            state = ReadState::READ_COMMENT;
+                            continue;
+                        }
+                        else
+                            file.unget();
                     }
                     else
                         file.unget();
                 }
-                else
-                    file.unget();
-            }
-            else if ( c == '=' )
-                addToken( TokenName::EQUAL_SIGN, "" );
-            else if ( c == ' ' )
-            {
-                do
-                    file.get( c );
-                while ( !file.eof() && c == ' ' );
-                file.unget();
-
-                addToken( TokenName::WHITESPACE, "" );
-            }
-            else if ( c == '>' )
-            {
-                addToken( TokenName::CLOSE_TAG, "" );
-                state = ReadState::READ_TEXT;
-            }
-            else if ( c == '/' )
-            {
-                file.get( c );
-                if ( c == '>' )
+                else if ( c == '=' )
+                    addToken( TokenId::EQUAL_SIGN, "" );
+                else if ( c == ' ' )
                 {
-                    addToken( TokenName::AUTO_CLOSE_TAG, "" );
+                    do
+                        file.get( c );
+                    while ( !file.eof() && c == ' ' );
+                    file.unget();
+
+                    addToken( TokenId::WHITESPACE, "" );
+                }
+                else if ( c == '>' )
+                {
+                    addToken( TokenId::CLOSE_TAG, "" );
                     state = ReadState::READ_TEXT;
                 }
-                else
-                    file.unget();
-            }
-            else if ( c == '"' )
-            {
-                addToken( TokenName::QUOTATION, "" );
-                state = ReadState::READ_VALUE;
-            }
-        }
-        else //if ( state == ReadState::READ_VALUE )
-        {
-            if ( c != '"' )
-            {
-                str += c;
-                continue;
+                else if ( c == '/' )
+                {
+                    file.get( c );
+                    if ( c == '>' )
+                    {
+                        addToken( TokenId::AUTO_CLOSE_TAG, "" );
+                        state = ReadState::READ_TEXT;
+                    }
+                    else
+                        file.unget();
+                }
+                else if ( c == '"' )
+                {
+                    addToken( TokenId::QUOTATION, "" );
+                    state = ReadState::READ_VALUE;
+                }
             }
             else
             {
-                addToken( TokenName::ATTRIBUTE_VALUE, str );
-                str = "";
+                if ( c != '"' )
+                {
+                    str += c;
+                    continue;
+                }
+                else
+                {
+                    addToken( TokenId::ATTRIBUTE_VALUE, str );
+                    str = "";
 
-                addToken( TokenName::QUOTATION, "" );
+                    addToken( TokenId::QUOTATION, "" );
 
-                state = ReadState::READ_TAG_INSIDE;
+                    state = ReadState::READ_TAG_INSIDE;
+                }
             }
         }
+
+        file.close();
     }
 
-    file.close();
-}
+    void Scanner::addToken( TokenId key, std::string value )
+    {
+        tokens.push_back( std::shared_ptr< data_structures::Token >( new data_structures::Token( key, value ) ) );
+    }
 
-void Scanner::addToken( TokenName key, std::string value )
-{
-    tokens.push_back( Token( key, value ) );
-}
-
-std::vector< Token >& Scanner::getTokens()
-{
-    return tokens;
+    Tokens& Scanner::getTokens()
+    {
+        return tokens;
+    }
 }

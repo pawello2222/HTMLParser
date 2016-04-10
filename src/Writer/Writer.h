@@ -8,7 +8,7 @@
 #include <fstream>
 #include "../Parser/Parser.h"
 #include "../Exceptions/Exceptions.h"
-
+/*
 class Writer
 {
 public:
@@ -20,7 +20,7 @@ private:
     void generateJSONTree();
 
     Tree& tree;
-};
+};*/
 
 
 #endif //HTMLPARSER_WRITER_H
