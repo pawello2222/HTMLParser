@@ -6,20 +6,18 @@
 #include "Parser/Parser.h"
 #include "Writer/Writer.h"
 
-typedef std::shared_ptr< scanner::Scanner > ScannerPtr;
-typedef std::shared_ptr< parser::Parser > ParserPtr;
+typedef std::unique_ptr< scanner::Scanner > ScannerPtr;
+typedef std::unique_ptr< parser::Parser > ParserPtr;
 
-/*
-void printTokens( std::vector< Token >& tokens )
+void printTokens( std::vector< data_structures::Token* > & tokens )
 {
-    std::cout << "\n";
-    for ( unsigned long i = 0; i < tokens.size(); i++ )
-        std::cout << tokens[ i ].description( tokens[ i ].name ) << " " << tokens[ i ].value << std::endl;
+    for ( auto token : tokens )
+        std::cout << token->description() << " " << token->getValue() << std::endl;
 }
-*/
+
 int main()
 {
-    ScannerPtr scanner = std::shared_ptr< scanner::Scanner >( new scanner::Scanner() );
+    ScannerPtr scanner = std::unique_ptr< scanner::Scanner >( new scanner::Scanner() );
 
     try
     {
@@ -33,7 +31,9 @@ int main()
 
     std::cout << "Info: Scan successful. File was opened and closed without errors." << std::endl;
 
-    ParserPtr parser = std::shared_ptr< parser::Parser >( new parser::Parser( scanner->getTokens() ) );
+    printTokens( scanner.get()->getTokens() );
+
+    /*ParserPtr parser = std::shared_ptr< parser::Parser >( new parser::Parser( scanner->getTokens() ) );
 
     try
     {
@@ -47,7 +47,7 @@ int main()
 
     std::cout << "Info: Parse successful. HTML file is valid." << std::endl;
 
-    /*Writer& writer = *( new Writer( parser.getTree() ) );
+    Writer& writer = *( new Writer( parser.getTree() ) );
 
     try
     {

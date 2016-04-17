@@ -6,23 +6,16 @@
 #define HTMLPARSER_TREE_H
 
 
-#include <memory>
 #include <string>
 #include <vector>
 
 namespace data_structures
 {
-    class Attribute;
-    class Node;
-
-    typedef std::shared_ptr< Attribute > AttributePtr;
-    typedef std::shared_ptr< Node > NodePtr;
-
     enum Identifier
     {
         ROOT = 0,
         TAG = 1,
-        TEXT = 2,
+        PLAIN_TEXT = 2,
         COMMENT = 3
     };
 
@@ -51,19 +44,19 @@ namespace data_structures
         void setIdentifier( const Identifier& identifier );
         const std::string& getName() const;
         void setName( const std::string& name );
-        std::vector< NodePtr >& getNodes();
-        void setNodes( const std::vector< NodePtr >& nodes );
-        std::vector< AttributePtr >& getAttributes();
-        void setAttributes( const std::vector< AttributePtr >& attributes );
-        const NodePtr& getParent() const;
-        void setParent( const NodePtr& parent );
+        std::vector< Node* >& getNodes();
+        void setNodes( const std::vector< Node* >& nodes );
+        std::vector< Attribute* >& getAttributes();
+        void setAttributes( const std::vector< Attribute* >& attributes );
+        Node* getParent() const;
+        void setParent( Node* parent );
 
     private:
         Identifier identifier;
         std::string name;
-        std::vector< NodePtr > nodes;
-        std::vector< AttributePtr > attributes;
-        NodePtr parent;
+        std::vector< Node* > nodes;
+        std::vector< Attribute* > attributes;
+        Node* parent;
     };
 
     class Tree
@@ -72,13 +65,13 @@ namespace data_structures
         Tree() {};
         ~Tree() {};
 
-        const NodePtr& getRoot() const;
-        void setRoot( const NodePtr& root );
+        Node* getRoot() const;
+        void setRoot( Node* root );
         const std::string& getDoctype() const;
         void setDoctype( const std::string& doctype );
 
     private:
-        NodePtr root;
+        Node* root;
         std::string doctype;
     };
 }

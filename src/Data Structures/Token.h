@@ -10,38 +10,58 @@
 
 namespace data_structures
 {
-    enum TokenName
+    enum TokenClass
+    {
+        IDENTIFIER,
+        TEXT,
+        OPEN_BEGIN_TAG,
+        OPEN_END_TAG,
+        CLOSE_TAG,
+        AUTO_CLOSE_TAG,
+        WHITESPACE,
+        ASSIGNMENT,
+        //HYPHEN,
+        QUOTATION_MARK,
+        EXCLAMATION_MARK,
+        COMMENT_BEGIN,
+        COMMENT_END,
+        UNKNOWN
+    };
+
+    /*enum TokenName
     {
         OPEN_BEGIN_TAG = 0,
-        OPEN_END_TAG = 1,
-        TAG_ID = 2,
-        CLOSE_TAG = 3,
-        AUTO_CLOSE_TAG = 4,
-        ATTRIBUTE_NAME = 5,
-        ATTRIBUTE_VALUE = 6,
-        WHITESPACE = 7,
-        EQUAL_SIGN = 8,
-        DASH = 9,
-        QUOTATION = 10,
-        PLAIN_TEXT = 11
-    };
+        OPEN_END_TAG,
+        TAG_ID,
+        CLOSE_TAG,
+        AUTO_CLOSE_TAG,
+        ATTRIBUTE_NAME,
+        ATTRIBUTE_VALUE,
+        WHITESPACE,
+        ASSIGNMENT,
+        QUOTATION_MARK,
+        EXCLAMATION_MARK,
+        PLAIN_TEXT,
+        COMMENT_BEGIN,
+        COMMENT_END
+    };*/
 
     class Token
     {
     public:
-        Token( TokenName _name, std::string _value );
+        Token( TokenClass _name, std::string _value );
         ~Token();
 
-        const TokenName& getName() const;
-        void setName( const TokenName& name );
+        const TokenClass& getClass() const;
+        void setClass( const TokenClass& _class );
         const std::string& getValue() const;
-        void setValue( const std::string& value );
+        void setValue( const std::string& _value );
 
-        std::string description( TokenName tokenName );
+        std::string description();
 
     private:
-        TokenName name;
-        std::string value;
+        TokenClass _class;
+        std::string _value;
     };
 }
 

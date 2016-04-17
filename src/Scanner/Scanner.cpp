@@ -8,14 +8,12 @@ namespace scanner
 {
     Scanner::Scanner()
     {
-        tokens.clear();
-
-        specialCharacters = "</> !=-\"";
+        //tokens.clear();
     }
 
     Scanner::~Scanner()
     {
-        tokens.clear();
+        //tokens.clear();
     }
 
     void Scanner::readFile( const std::string& path )
@@ -25,10 +23,8 @@ namespace scanner
             throw exceptions::parser_exception( "Error: Cannot open source file." );
 
         char c;
-        std::string str = "";
 
-        ReadState state = ReadState::READ_TEXT;
-        ScriptState scriptState = ScriptState::NO_SCRIPT;
+        ReadState state = ReadState::TEXT;
 
         while ( !file.eof() )
         {
@@ -36,188 +32,159 @@ namespace scanner
             if ( file.eof() )
                 break;
 
-            if ( state == ReadState::READ_TEXT )
+            switch ( state )
             {
-                if ( scriptState != ScriptState::NO_SCRIPT )
-                {
+                case TAG:
+                    switch ( c )
+                    {
+                        case '<':
+                            addToken( TokenClass::OPEN_BEGIN_TAG, "" );
+                            break;
+
+                        case '/':
+//                            if ( outputStr != "" )
+//                                addToken( TokenClass::IDENTIFIER, outputStr );
+                            if ( tokens.back()->getClass() == TokenClass::OPEN_BEGIN_TAG )
+                                tokens.back()->setClass( TokenClass::OPEN_END_TAG );
+                            else
+                            {
+                                file.get( c );
+                                if ( c == '>' )
+                                {
+                                    state = ReadState::TEXT;
+                                    addToken( TokenClass::AUTO_CLOSE_TAG, "" );
+                                    break;
+                                }
+                                file.unget();
+                                outputStr += '/';
+                            }
+                            break;
+
+                        case '>':
+                            if ( outputStr != "" )
+                                addToken( TokenClass::IDENTIFIER, outputStr );
+                            addToken( TokenClass::CLOSE_TAG, "" );
+                            state = ReadState::TEXT;
+                            break;
+
+                        case '!':
+                            addToken( TokenClass::EXCLAMATION_MARK, "" );
+                            break;
+
+                        case '-':
+                            if ( getLastTokenClass( 0 ) == TokenClass::EXCLAMATION_MARK
+                                 && getLastTokenClass( 1 ) == TokenClass::OPEN_BEGIN_TAG )
+                            {
+                                file.get( c );
+                                if ( c == '-' )
+                                {
+                                    state = ReadState::COMMENT;
+                                    addToken( TokenClass::COMMENT_BEGIN, "" );
+                                    break;
+                                }
+                                file.unget();
+                            }
+                            outputStr += '-';
+                            break;
+
+                        case '=':
+                            if ( outputStr != "" )
+                                addToken( TokenClass::IDENTIFIER, outputStr );
+                            addToken( TokenClass::ASSIGNMENT, "" );
+                            break;
+
+                        case '\"':
+                            addToken( TokenClass::QUOTATION_MARK, "" );
+                            file.get( c );
+                            while ( c != '\"' && !file.eof() )
+                            {
+                                outputStr += c;
+                                file.get( c );
+                            }
+                            addToken( TokenClass::TEXT, outputStr );
+                            addToken( TokenClass::QUOTATION_MARK, "" );
+
+                        case ' ':
+                            if ( outputStr != "" )
+                                addToken( TokenClass::IDENTIFIER, outputStr );
+                            file.get( c );
+                            while ( c == ' ' && !file.eof() )
+                                file.get( c );
+                            file.unget();
+                            addToken( TokenClass::WHITESPACE, "" );
+                            break;
+
+                        default:
+                            outputStr += c;
+                            break;
+
+                    }
+                    break;
+
+                case TEXT:
+                    if ( c == '<' )
+                    {
+                        file.get( c );
+                        if ( c == '/' || c == '!' || ( c != ' ' && c != '=' ) )
+                        {
+                            addToken( TokenClass::TEXT, outputStr );
+                            file.unget();
+                            file.unget();
+                            state = ReadState::TAG;
+                            break;
+                        }
+                        file.unget();
+                    }
                     if ( c == '\'' )
-                    {
-                        if ( scriptState == ScriptState::READ_SCRIPT )
-                            scriptState = ScriptState::READ_QUOTED_TEXT;
-                        else
-                            scriptState = ScriptState::READ_SCRIPT;
-                        str += c;
-                        continue;
-                    }
+                        state = ReadState::TEXT_QUOTED;
+                    outputStr += c;
+                    break;
 
+                case TEXT_QUOTED:
+                    if ( c == '\'' )
+                        state = ReadState::TEXT;
+                    outputStr += c;
+                    break;
 
-                    if ( !( c == '<' && scriptState != ScriptState::READ_QUOTED_TEXT ) )
-                    {
-                        str += c;
-                        continue;
-                    }
-
-                    char tmp;
-                    file.get( tmp );
-                    if ( tmp != '/' )
-                    {
-                        str = str + c + tmp;
-                        continue;
-                    }
-                    file.unget();
-                    scriptState = ScriptState::NO_SCRIPT;
-                }
-
-                if ( c != '<' )
-                {
-                    str += c;
-                    continue;
-                }
-
-                if ( str != "" )
-                {
-                    addToken( TokenId::PLAIN_TEXT, str );
-                    str = "";
-                }
-
-                file.get( c );
-
-                if ( c == '/' )
-                {
-                    addToken( TokenId::OPEN_END_TAG, "" );
-                }
-                else
-                {
-                    addToken( TokenId::OPEN_BEGIN_TAG, "" );
-                    file.unget();
-                }
-
-                state = ReadState::READ_TAG;
-            }
-            else if ( state == ReadState::READ_COMMENT )
-            {
-                if ( c != '-' )
-                {
-                    str += c;
-                    continue;
-                }
-
-                file.get( c );
-                if ( c == '-' )
-                {
-                    file.get( c );
-                    if ( c == '>' )
-                    {
-                        addToken( TokenId::ATTRIBUTE_NAME, str );
-                        str = "";
-                        addToken( TokenId::CLOSE_TAG, "" );
-                        state = ReadState::READ_TEXT;
-                    }
-                    else
-                        str += c;
-                }
-                else
-                    str += c;
-            }
-            else if ( state != ReadState::READ_VALUE )
-            {
-                if ( specialCharacters.find( c ) == std::string::npos
-                     || ( state == ReadState::READ_TAG_INSIDE && c == '-' ) )
-                {
-                    str += c;
-                    continue;
-                }
-
-                if ( str != "" )
-                {
-                    if ( state == ReadState::READ_TAG )
-                    {
-                        if ( str == "script" && tokens.back().get()->getName() != TokenId::OPEN_END_TAG )
-                            scriptState = ScriptState::READ_SCRIPT;
-                        addToken( TokenId::TAG_ID, str );
-                        state = ReadState::READ_TAG_INSIDE;
-                    }
-                    else
-                        addToken( TokenId::ATTRIBUTE_NAME, str );
-                    str = "";
-                }
-
-                if ( c == '!' )
-                {
-                    file.get( c );
+                case COMMENT:
                     if ( c == '-' )
                     {
                         file.get( c );
                         if ( c == '-' )
                         {
-                            addToken( TokenId::TAG_ID, "COMMENT" );
-                            state = ReadState::READ_COMMENT;
-                            continue;
-                        }
-                        else
+                            file.get( c );
+                            if ( c == '>' )
+                            {
+                                addToken( TokenClass::TEXT, outputStr );
+                                addToken( TokenClass::COMMENT_END, "" );
+                                addToken( TokenClass::CLOSE_TAG, "" );
+                                state = ReadState::TEXT;
+                                break;
+                            }
                             file.unget();
-                    }
-                    else
+                        }
                         file.unget();
-                }
-                else if ( c == '=' )
-                    addToken( TokenId::EQUAL_SIGN, "" );
-                else if ( c == ' ' )
-                {
-                    do
-                        file.get( c );
-                    while ( !file.eof() && c == ' ' );
-                    file.unget();
-
-                    addToken( TokenId::WHITESPACE, "" );
-                }
-                else if ( c == '>' )
-                {
-                    addToken( TokenId::CLOSE_TAG, "" );
-                    state = ReadState::READ_TEXT;
-                }
-                else if ( c == '/' )
-                {
-                    file.get( c );
-                    if ( c == '>' )
-                    {
-                        addToken( TokenId::AUTO_CLOSE_TAG, "" );
-                        state = ReadState::READ_TEXT;
                     }
-                    else
-                        file.unget();
-                }
-                else if ( c == '"' )
-                {
-                    addToken( TokenId::QUOTATION, "" );
-                    state = ReadState::READ_VALUE;
-                }
-            }
-            else
-            {
-                if ( c != '"' )
-                {
-                    str += c;
-                    continue;
-                }
-                else
-                {
-                    addToken( TokenId::ATTRIBUTE_VALUE, str );
-                    str = "";
-
-                    addToken( TokenId::QUOTATION, "" );
-
-                    state = ReadState::READ_TAG_INSIDE;
-                }
+                    outputStr += c;
+                    break;
             }
         }
-
-        file.close();
     }
 
-    void Scanner::addToken( TokenId key, std::string value )
+
+
+    void Scanner::addToken( TokenClass key, std::string value )
     {
-        tokens.push_back( std::shared_ptr< data_structures::Token >( new data_structures::Token( key, value ) ) );
+        tokens.push_back( new data_structures::Token( key, value ) );
+        outputStr = "";
+    }
+
+    TokenClass Scanner::getLastTokenClass( int index )
+    {
+        if ( tokens.size() - index <= 0 )
+            return TokenClass::UNKNOWN;
+
+        return tokens.at( tokens.size() - 1 - index )->getClass();
     }
 
     Tokens& Scanner::getTokens()

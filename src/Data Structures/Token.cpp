@@ -6,10 +6,10 @@
 
 namespace data_structures
 {
-    Token::Token( TokenName _name, std::string _value )
+    Token::Token( TokenClass _class, std::string _value )
     {
-        this->name = _name;
-        this->value = _value;
+        this->_class = _class;
+        this->_value = _value;
     }
 
     Token::~Token()
@@ -17,54 +17,56 @@ namespace data_structures
 
     }
 
-    const TokenName& Token::getName() const
+    const TokenClass& Token::getClass() const
     {
-        return name;
+        return _class;
     }
 
-    void Token::setName( const TokenName& name )
+    void Token::setClass( const TokenClass& _class )
     {
-        Token::name = name;
+        this->_class = _class;
     }
 
     const std::string& Token::getValue() const
     {
-        return value;
+        return _value;
     }
 
-    void Token::setValue( const std::string& value )
+    void Token::setValue( const std::string& _value )
     {
-        Token::value = value;
+        this->_value = _value;
     }
 
-    std::string Token::description( TokenName tokenName )
+    std::string Token::description()
     {
-        switch ( tokenName )
+        switch ( _class )
         {
             case OPEN_BEGIN_TAG:
                 return "OPEN_BEGIN_TAG";
             case OPEN_END_TAG:
                 return "OPEN_END_TAG";
-            case TAG_ID:
-                return "TAG_ID";
+            case IDENTIFIER:
+                return "IDENTIFIER";
+            case TEXT:
+                return "TEXT";
             case CLOSE_TAG:
                 return "CLOSE_TAG";
             case AUTO_CLOSE_TAG:
                 return "AUTO_CLOSE_TAG";
-            case ATTRIBUTE_NAME:
-                return "ATTRIBUTE_NAME";
-            case ATTRIBUTE_VALUE:
-                return "ATTRIBUTE_VALUE";
             case WHITESPACE:
                 return "WHITESPACE";
-            case EQUAL_SIGN:
-                return "EQUAL_SIGN";
-            case DASH:
-                return "DASH";
-            case QUOTATION:
-                return "QUOTATION";
-            case PLAIN_TEXT:
-                return "PLAIN_TEXT";
+            case ASSIGNMENT:
+                return "ASSIGNMENT";
+            case QUOTATION_MARK:
+                return "QUOTATION_MARK";
+            case EXCLAMATION_MARK:
+                return "EXCLAMATION_MARK";
+            case COMMENT_BEGIN:
+                return "COMMENT_BEGIN";
+            case COMMENT_END:
+                return "COMMENT_END";
+            case UNKNOWN:
+                return "UNKNOWN";
         }
 
         return std::string();

@@ -8,7 +8,6 @@
 
 #include <string>
 #include <iostream>
-#include <memory>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -17,24 +16,15 @@
 
 namespace scanner
 {
-    typedef std::shared_ptr< data_structures::Token > TokenPtr;
-    typedef std::vector< TokenPtr > Tokens;
-    typedef data_structures::TokenName TokenId;
+    typedef std::vector< data_structures::Token* > Tokens;
+    typedef data_structures::TokenClass TokenClass;
 
     enum ReadState
     {
-        READ_TAG = 0,
-        READ_TAG_INSIDE = 1,
-        READ_VALUE = 2,
-        READ_TEXT = 3,
-        READ_COMMENT = 4
-    };
-
-    enum ScriptState
-    {
-        NO_SCRIPT = 0,
-        READ_SCRIPT = 1,
-        READ_QUOTED_TEXT = 2,
+        TAG,
+        TEXT,
+        TEXT_QUOTED,
+        COMMENT
     };
 
     class Scanner
@@ -48,11 +38,12 @@ namespace scanner
         Tokens& getTokens();
 
     private:
-        void addToken( data_structures::TokenName key, std::string value );
+        void addToken( TokenClass key, std::string value );
+        TokenClass getLastTokenClass( int index );
 
         Tokens tokens;
 
-        std::string specialCharacters;
+        std::string outputStr;
     };
 }
 

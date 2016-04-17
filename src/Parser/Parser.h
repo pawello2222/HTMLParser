@@ -6,7 +6,6 @@
 #define HTMLPARSER_PARSER_H
 
 
-#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -16,7 +15,7 @@
 
 namespace parser
 {
-    typedef data_structures::TokenName TokenId;
+    typedef data_structures::TokenClass TokenId;
     typedef data_structures::Identifier Id;
     typedef data_structures::Tree HTMLTree;
     typedef data_structures::Node HTMLNode;
@@ -25,6 +24,19 @@ namespace parser
     typedef std::shared_ptr< HTMLNode > NodePtr;
     typedef std::shared_ptr< data_structures::Token > TokenPtr;
     typedef std::vector< TokenPtr > Tokens;
+
+
+    /*enum ReadState
+    {
+        TAG = 0,
+        TAG_SPECIAL,
+        TAG_INSIDE,
+        ATTRIBUTE_NAME,
+        ATTRIBUTE_VALUE,
+        COMMENT,
+        TEXT,
+        TEXT_QUOTED
+    };*/
 
     class Parser
     {

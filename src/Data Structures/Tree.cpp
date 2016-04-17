@@ -63,42 +63,42 @@ namespace data_structures
         Node::name = name;
     }
 
-    std::vector< NodePtr >& Node::getNodes()
+    std::vector< Node* >& Node::getNodes()
     {
         return nodes;
     }
 
-    void Node::setNodes( const std::vector< NodePtr >& nodes )
+    void Node::setNodes( const std::vector< Node* >& nodes )
     {
         Node::nodes = nodes;
     }
 
-    std::vector< AttributePtr >& Node::getAttributes()
+    std::vector< Attribute* >& Node::getAttributes()
     {
         return attributes;
     }
 
-    void Node::setAttributes( const std::vector< AttributePtr >& attributes )
+    void Node::setAttributes( const std::vector< Attribute* >& attributes )
     {
         Node::attributes = attributes;
     }
 
-    const NodePtr& Node::getParent() const
+    Node* Node::getParent() const
     {
         return parent;
     }
 
-    void Node::setParent( const NodePtr& parent )
+    void Node::setParent( Node* parent )
     {
         Node::parent = parent;
     }
 
-    const NodePtr& Tree::getRoot() const
+    Node* Tree::getRoot() const
     {
         return root;
     }
 
-    void Tree::setRoot( const NodePtr& root )
+    void Tree::setRoot( Node* root )
     {
         Tree::root = root;
     }
