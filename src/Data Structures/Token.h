@@ -23,28 +23,10 @@ namespace data_structures
         //HYPHEN,
         QUOTATION_MARK,
         EXCLAMATION_MARK,
-        COMMENT_BEGIN,
-        COMMENT_END,
+        //COMMENT_BEGIN,
+        //COMMENT_END,
         UNKNOWN
     };
-
-    /*enum TokenName
-    {
-        OPEN_BEGIN_TAG = 0,
-        OPEN_END_TAG,
-        TAG_ID,
-        CLOSE_TAG,
-        AUTO_CLOSE_TAG,
-        ATTRIBUTE_NAME,
-        ATTRIBUTE_VALUE,
-        WHITESPACE,
-        ASSIGNMENT,
-        QUOTATION_MARK,
-        EXCLAMATION_MARK,
-        PLAIN_TEXT,
-        COMMENT_BEGIN,
-        COMMENT_END
-    };*/
 
     class Token
     {

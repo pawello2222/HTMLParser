@@ -61,10 +61,10 @@ namespace data_structures
                 return "QUOTATION_MARK";
             case EXCLAMATION_MARK:
                 return "EXCLAMATION_MARK";
-            case COMMENT_BEGIN:
-                return "COMMENT_BEGIN";
-            case COMMENT_END:
-                return "COMMENT_END";
+//            case COMMENT_BEGIN:
+//                return "COMMENT_BEGIN";
+//            case COMMENT_END:
+//                return "COMMENT_END";
             case UNKNOWN:
                 return "UNKNOWN";
         }
