@@ -21,7 +21,7 @@ int main()
 
     try
     {
-        scanner->readFile( "../resources/original-edited.html" );
+        scanner->readFile( "../resources/test.html" );
     }
     catch ( const exceptions::parser_exception &e )
     {

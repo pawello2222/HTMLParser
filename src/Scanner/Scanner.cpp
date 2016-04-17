@@ -8,12 +8,16 @@ namespace scanner
 {
     Scanner::Scanner()
     {
-        //tokens.clear();
+
     }
 
     Scanner::~Scanner()
     {
-        //tokens.clear();
+        while ( tokens.size() )
+        {
+            delete tokens.back();
+            tokens.pop_back();
+        }
     }
 
     void Scanner::readFile( const std::string& path )
@@ -42,8 +46,8 @@ namespace scanner
                             break;
 
                         case '/':
-//                            if ( outputStr != "" )
-//                                addToken( TokenClass::IDENTIFIER, outputStr );
+                            if ( outputStr != "" )
+                                addToken( TokenClass::IDENTIFIER, outputStr );
                             if ( tokens.back()->getClass() == TokenClass::OPEN_BEGIN_TAG )
                                 tokens.back()->setClass( TokenClass::OPEN_END_TAG );
                             else
@@ -78,8 +82,10 @@ namespace scanner
                                 file.get( c );
                                 if ( c == '-' )
                                 {
+                                    tokens.pop_back();
+                                    tokens.pop_back();
+//                                    addToken( TokenClass::COMMENT_BEGIN, "" );
                                     state = ReadState::COMMENT;
-                                    addToken( TokenClass::COMMENT_BEGIN, "" );
                                     break;
                                 }
                                 file.unget();
@@ -155,9 +161,9 @@ namespace scanner
                             file.get( c );
                             if ( c == '>' )
                             {
-                                addToken( TokenClass::TEXT, outputStr );
-                                addToken( TokenClass::COMMENT_END, "" );
-                                addToken( TokenClass::CLOSE_TAG, "" );
+//                                addToken( TokenClass::TEXT, outputStr );
+//                                addToken( TokenClass::COMMENT_END, "" );
+//                                addToken( TokenClass::CLOSE_TAG, "" );
                                 state = ReadState::TEXT;
                                 break;
                             }
@@ -165,13 +171,11 @@ namespace scanner
                         }
                         file.unget();
                     }
-                    outputStr += c;
+//                    outputStr += c;
                     break;
             }
         }
     }
-
-
 
     void Scanner::addToken( TokenClass key, std::string value )
     {
