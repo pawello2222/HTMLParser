@@ -14,21 +14,38 @@
 #include "../Data Structures/Token.h"
 #include "../Exceptions/Exceptions.h"
 
-class Scanner
+namespace scanner
 {
-public:
-    Scanner();
+    typedef std::vector< data_structures::Token* > Tokens;
+    typedef data_structures::TokenClass TokenClass;
 
-    void readFile( const std::string& path );
+    enum ReadState
+    {
+        TAG,
+        TEXT,
+        TEXT_QUOTED,
+        COMMENT
+    };
 
-    std::vector< Token >& getTokens();
+    class Scanner
+    {
+    public:
+        Scanner();
+        ~Scanner();
 
-private:
-    void addToken( TokenName key, std::string value );
-    std::vector< Token > tokens;
+        void readFile( const std::string& path );
 
-    std::string specialCharacters;
-};
+        Tokens& getTokens();
+
+    private:
+        void addToken( TokenClass key, std::string value );
+        TokenClass getLastTokenClass( int index );
+
+        Tokens tokens;
+
+        std::string outputStr;
+    };
+}
 
 
 #endif //HTMLPARSER_SCANNER_H

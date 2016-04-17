@@ -9,26 +9,25 @@
 #include <exception>
 #include <string>
 
-class parser_exception : public std::exception
+namespace exceptions
 {
-public:
-    parser_exception()
+    class parser_exception : public std::exception
     {
-        this->message = "";
-    }
-    parser_exception( std::string _message )
-    {
-        this->message = _message;
-    }
+    public:
+        parser_exception( std::string _message )
+        {
+            this->message = _message;
+        }
 
-    const std::string& getMessage() const
-    {
-        return message;
-    }
+        const std::string& getMessage() const
+        {
+            return message;
+        }
 
-private:
-    std::string message;
-};
+    private:
+        std::string message;
+    };
+}
 
 
 #endif //HTMLPARSER_EXCEPTIONS_H
