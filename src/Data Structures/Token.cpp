@@ -22,10 +22,10 @@ namespace data_structures
         return _class;
     }
 
-    void Token::setClass( const TokenClass& _class )
-    {
-        this->_class = _class;
-    }
+//    void Token::setClass( const TokenClass& _class )
+//    {
+//        this->_class = _class;
+//    }
 
     const std::string& Token::getValue() const
     {

@@ -6,6 +6,7 @@
 #define HTMLPARSER_SCANNER_H
 
 
+#include <memory>
 #include <string>
 #include <fstream>
 #include <queue>
@@ -15,8 +16,9 @@
 namespace scanner
 {
     typedef data_structures::TokenClass TokenClass;
+    typedef std::shared_ptr< data_structures::Token > TokenPtr;
 
-    const int MAX_QUQUE_SIZE = 3;
+    const int MAX_QUEUE_SIZE = 3;
 
     enum ReadState
     {
@@ -32,16 +34,16 @@ namespace scanner
         Scanner( const std::string& path );
         ~Scanner();
 
-        data_structures::Token* getNextToken();
+        TokenPtr getNextToken();
 
     private:
         void parseFile();
-        data_structures::Token* addToken( TokenClass key, std::string value = "" );
+        TokenPtr addToken( TokenClass key, std::string value = "" );
 
         std::string outputStr;
         std::ifstream file;
         ReadState state;
-        std::queue< data_structures::Token* > queue;
+        std::queue< TokenPtr > queue;
     };
 }
 

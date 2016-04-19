@@ -32,7 +32,7 @@ namespace data_structures
         ~Token();
 
         const TokenClass& getClass() const;
-        void setClass( const TokenClass& _class );
+//        void setClass( const TokenClass& _class );
         const std::string& getValue() const;
 //        void setValue( const std::string& _value );
 

@@ -22,7 +22,7 @@ namespace scanner
         file.close();
     }
 
-    data_structures::Token* Scanner::getNextToken()
+    TokenPtr Scanner::getNextToken()
     {
         if ( !queue.size() )
             parseFile();
@@ -126,7 +126,7 @@ namespace scanner
                             while ( c == ' ' && !file.eof() )
                                 file.get( c );
                             file.unget();
-                            return;
+                            break;
 
                         default:
                             outputStr += c;
@@ -182,11 +182,11 @@ namespace scanner
         }
     }
 
-    data_structures::Token* Scanner::addToken( TokenClass key, std::string value )
+    TokenPtr Scanner::addToken( TokenClass key, std::string value )
     {
-        data_structures::Token* token = new data_structures::Token( key, value );
+        TokenPtr token = std::shared_ptr< data_structures::Token >( new data_structures::Token( key, value ) );
         outputStr = "";
-        if ( queue.size() >= MAX_QUQUE_SIZE )
+        if ( queue.size() >= MAX_QUEUE_SIZE )
             queue.pop();
         queue.push( token );
         return token;

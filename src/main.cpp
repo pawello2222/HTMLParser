@@ -3,46 +3,39 @@
 //
 
 #include <iostream>
-#include "Scanner/Scanner.h"
 #include "Parser/Parser.h"
 #include "Writer/Writer.h"
 
-typedef std::unique_ptr< scanner::Scanner > ScannerPtr;
 typedef std::unique_ptr< parser::Parser > ParserPtr;
-
-//void printTokens( std::vector< data_structures::Token* > & tokens )
-//{
-//    for ( auto token : tokens )
-//        std::cout << token->description() << " " << token->getValue() << std::endl;
-//}
 
 int main()
 {
-    ScannerPtr scanner = std::unique_ptr< scanner::Scanner >( new scanner::Scanner( "../resources/test.html" ) );
+//    typedef std::unique_ptr< scanner::Scanner > ScannerPtr;
+//    ScannerPtr scanner = std::unique_ptr< scanner::Scanner >( new scanner::Scanner( "../resources/basic.html" ) );
+//
+//    try
+//    {
+//        std::shared_ptr<data_structures::Token> token;
+//        do
+//        {
+//            token = scanner->getNextToken();
+//            std::cout << token->description() << " " << token->getValue() << std::endl;
+//        }
+//        while ( token->getClass() != data_structures::TokenClass::END_OF_FILE );
+//    }
+//    catch ( const exceptions::parser_exception &e )
+//    {
+//        std::cout << e.getMessage() << std::endl;
+//        return -1;
+//    }
+//
+//    std::cout << "Info: Scan successful. File was opened and closed without errors." << std::endl;
+
+    ParserPtr parser = std::unique_ptr< parser::Parser >( new parser::Parser( "../resources/original-edited.html" ) );
 
     try
     {
-        data_structures::Token* token;
-        do
-        {
-            token = scanner->getNextToken();
-            std::cout << token->description() << " " << token->getValue() << std::endl;
-        }
-        while ( token->getClass() != data_structures::TokenClass::END_OF_FILE );
-    }
-    catch ( const exceptions::parser_exception &e )
-    {
-        std::cout << e.getMessage() << std::endl;
-        return -1;
-    }
-
-    std::cout << "Info: Scan successful. File was opened and closed without errors." << std::endl;
-
-    /*ParserPtr parser = std::shared_ptr< parser::Parser >( new parser::Parser( scanner->getTokens() ) );
-
-    try
-    {
-        parser->parse();
+        parser->parseDocument();
     }
     catch( const exceptions::parser_exception& e )
     {
@@ -52,7 +45,7 @@ int main()
 
     std::cout << "Info: Parse successful. HTML file is valid." << std::endl;
 
-    Writer& writer = *( new Writer( parser.getTree() ) );
+    /*Writer& writer = *( new Writer( parser.getTree() ) );
 
     try
     {
