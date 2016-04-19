@@ -18,14 +18,11 @@ namespace data_structures
         OPEN_END_TAG,
         CLOSE_TAG,
         AUTO_CLOSE_TAG,
-        WHITESPACE,
         ASSIGNMENT,
-        //HYPHEN,
         QUOTATION_MARK,
         EXCLAMATION_MARK,
-        //COMMENT_BEGIN,
-        //COMMENT_END,
-        UNKNOWN
+        NULL_TOKEN,
+        END_OF_FILE
     };
 
     class Token
@@ -37,7 +34,7 @@ namespace data_structures
         const TokenClass& getClass() const;
         void setClass( const TokenClass& _class );
         const std::string& getValue() const;
-        void setValue( const std::string& _value );
+//        void setValue( const std::string& _value );
 
         std::string description();
 

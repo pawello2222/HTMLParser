@@ -2,6 +2,7 @@
 // Created by Pawel Wiszenko on 01.04.2016.
 //
 
+#include <iostream>
 #include "Scanner/Scanner.h"
 #include "Parser/Parser.h"
 #include "Writer/Writer.h"
@@ -9,19 +10,25 @@
 typedef std::unique_ptr< scanner::Scanner > ScannerPtr;
 typedef std::unique_ptr< parser::Parser > ParserPtr;
 
-void printTokens( std::vector< data_structures::Token* > & tokens )
-{
-    for ( auto token : tokens )
-        std::cout << token->description() << " " << token->getValue() << std::endl;
-}
+//void printTokens( std::vector< data_structures::Token* > & tokens )
+//{
+//    for ( auto token : tokens )
+//        std::cout << token->description() << " " << token->getValue() << std::endl;
+//}
 
 int main()
 {
-    ScannerPtr scanner = std::unique_ptr< scanner::Scanner >( new scanner::Scanner() );
+    ScannerPtr scanner = std::unique_ptr< scanner::Scanner >( new scanner::Scanner( "../resources/test.html" ) );
 
     try
     {
-        scanner->readFile( "../resources/test.html" );
+        data_structures::Token* token;
+        do
+        {
+            token = scanner->getNextToken();
+            std::cout << token->description() << " " << token->getValue() << std::endl;
+        }
+        while ( token->getClass() != data_structures::TokenClass::END_OF_FILE );
     }
     catch ( const exceptions::parser_exception &e )
     {
@@ -30,8 +37,6 @@ int main()
     }
 
     std::cout << "Info: Scan successful. File was opened and closed without errors." << std::endl;
-
-    printTokens( scanner.get()->getTokens() );
 
     /*ParserPtr parser = std::shared_ptr< parser::Parser >( new parser::Parser( scanner->getTokens() ) );
 

@@ -7,17 +7,16 @@
 
 
 #include <string>
-#include <iostream>
 #include <fstream>
-#include <sstream>
-#include <vector>
+#include <queue>
 #include "../Data Structures/Token.h"
 #include "../Exceptions/Exceptions.h"
 
 namespace scanner
 {
-    typedef std::vector< data_structures::Token* > Tokens;
     typedef data_structures::TokenClass TokenClass;
+
+    const int MAX_QUQUE_SIZE = 3;
 
     enum ReadState
     {
@@ -30,20 +29,19 @@ namespace scanner
     class Scanner
     {
     public:
-        Scanner();
+        Scanner( const std::string& path );
         ~Scanner();
 
-        void readFile( const std::string& path );
-
-        Tokens& getTokens();
+        data_structures::Token* getNextToken();
 
     private:
-        void addToken( TokenClass key, std::string value );
-        TokenClass getLastTokenClass( int index );
-
-        Tokens tokens;
+        void parseFile();
+        data_structures::Token* addToken( TokenClass key, std::string value = "" );
 
         std::string outputStr;
+        std::ifstream file;
+        ReadState state;
+        std::queue< data_structures::Token* > queue;
     };
 }
 
