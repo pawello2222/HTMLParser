@@ -10,32 +10,11 @@ typedef std::unique_ptr< parser::Parser > ParserPtr;
 
 int main()
 {
-//    typedef std::unique_ptr< scanner::Scanner > ScannerPtr;
-//    ScannerPtr scanner = std::unique_ptr< scanner::Scanner >( new scanner::Scanner( "../resources/basic.html" ) );
-//
-//    try
-//    {
-//        std::shared_ptr<data_structures::Token> token;
-//        do
-//        {
-//            token = scanner->getNextToken();
-//            std::cout << token->description() << " " << token->getValue() << std::endl;
-//        }
-//        while ( token->getClass() != data_structures::TokenClass::END_OF_FILE );
-//    }
-//    catch ( const exceptions::parser_exception &e )
-//    {
-//        std::cout << e.getMessage() << std::endl;
-//        return -1;
-//    }
-//
-//    std::cout << "Info: Scan successful. File was opened and closed without errors." << std::endl;
-
-    ParserPtr parser = std::unique_ptr< parser::Parser >( new parser::Parser( "../resources/original-edited.html" ) );
+    ParserPtr parser = std::unique_ptr< parser::Parser >( new parser::Parser() );
 
     try
     {
-        parser->parseDocument();
+        parser->parseDocument( "../resources/original.html" );
     }
     catch( const exceptions::parser_exception& e )
     {

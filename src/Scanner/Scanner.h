@@ -35,6 +35,7 @@ namespace scanner
         ~Scanner();
 
         TokenPtr getNextToken();
+        int getCurrLine() const;
 
     private:
         void parseFile();
@@ -44,6 +45,7 @@ namespace scanner
         std::ifstream file;
         ReadState state;
         std::queue< TokenPtr > queue;
+        int currLine;
     };
 }
 

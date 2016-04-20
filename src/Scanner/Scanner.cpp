@@ -14,12 +14,13 @@ namespace scanner
             throw exceptions::parser_exception( "Error: Cannot open source file." );
 
         state = ReadState::TAG;
+        currLine = 1;
     }
 
     Scanner::~Scanner()
     {
-        // TODO close file when errors, etc
-        file.close();
+        if ( file )
+            file.close();
     }
 
     TokenPtr Scanner::getNextToken()
@@ -35,6 +36,9 @@ namespace scanner
     void Scanner::parseFile()
     {
         char c;
+
+        if ( c == '\n' )
+            currLine++;
 
         while ( !file.eof() )
         {
@@ -114,6 +118,8 @@ namespace scanner
                             {
                                 outputStr += c;
                                 file.get( c );
+                                if ( c == '\n' )
+                                    currLine++;
                             }
                             addToken( TokenClass::TEXT, outputStr );
                             addToken( TokenClass::QUOTATION_MARK );
@@ -152,12 +158,16 @@ namespace scanner
                     }
                     if ( c == '\'' )
                         state = ReadState::TEXT_QUOTED;
+                    if ( c == '\n' )
+                        currLine++;
                     outputStr += c;
                     break;
 
                 case TEXT_QUOTED:
                     if ( c == '\'' )
                         state = ReadState::TEXT;
+                    if ( c == '\n' )
+                        currLine++;
                     outputStr += c;
                     break;
 
@@ -177,6 +187,8 @@ namespace scanner
                         }
                         file.unget();
                     }
+                    if ( c == '\n' )
+                        currLine++;
                     break;
             }
         }
@@ -190,5 +202,10 @@ namespace scanner
             queue.pop();
         queue.push( token );
         return token;
+    }
+
+    int Scanner::getCurrLine() const
+    {
+        return currLine;
     }
 }

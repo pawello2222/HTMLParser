@@ -44,13 +44,13 @@ namespace parser
     class Parser
     {
     public:
-        Parser( const std::string& path );
+        Parser();
 
-        void parseDocument();
+        void parseDocument( const std::string& path );
         TreePtr getTree();
 
     private:
-        void addException();
+        void throwException();
         void parseDoctype();
         bool parseNode();
         bool parseAttribute();
@@ -66,6 +66,7 @@ namespace parser
         TreePtr tree;
         NodePtr currNode;
         TokenPtr currToken;
+        std::string path;
     };
 }
 

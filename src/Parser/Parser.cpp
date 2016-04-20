@@ -6,20 +6,25 @@
 
 namespace parser
 {
-    Parser::Parser( const std::string& path )
+    Parser::Parser()
     {
-        this->scanner = std::unique_ptr< scanner::Scanner >( new scanner::Scanner( path ) );
-        this->tree = std::unique_ptr< HTMLTree >(
-                new HTMLTree( std::shared_ptr< HTMLNode >(
-                        new HTMLNode( Id::ROOT ) ) ) );
-        this->currNode = tree->getRoot();
+        tree = std::unique_ptr< HTMLTree >( new HTMLTree(
+                std::shared_ptr< HTMLNode >( new HTMLNode( Id::ROOT ) ) ) );
+        currNode = tree->getRoot();
     }
 
-    void Parser::parseDocument()
+    void Parser::parseDocument( const std::string& path )
     {
+        scanner = std::unique_ptr< scanner::Scanner >( new scanner::Scanner( this->path = path ) );
+
         parseDoctype();
 
         while ( parseNode() );
+
+        if ( currNode->getIdentifier() != Id::ROOT )
+            throw exceptions::parser_exception( "Error: Not all tags were closed." );
+
+        scanner.reset();
     }
 
     void Parser::parseDoctype()
@@ -77,11 +82,14 @@ namespace parser
              && assertToken( getNextToken(), TokenClass::IDENTIFIER ) )
         {
             currNode = currNode->getParent();
+            if ( !currNode )
+                throw exceptions::parser_exception( "Error: Too many close tags." );
             if ( assertToken( getNextToken(), TokenClass::CLOSE_TAG ) )
                 return true;
         }
 
-        throw exceptions::parser_exception( "Error: Invalid node." );
+        throwException();
+        return false;
     }
 
     bool Parser::parseAttribute()
@@ -99,7 +107,8 @@ namespace parser
             }
         }
 
-        throw exceptions::parser_exception( "Error: Invalid attribute." );
+        throwException();
+        return false;
     }
 
     TreePtr Parser::getTree()
@@ -134,16 +143,12 @@ namespace parser
         return tokenPtr->getClass() == _class && tokenPtr->getValue() == _value;
     }
 
-    void Parser::addException()
+    void Parser::throwException()
     {
-//        std::stringstream msg;
-//        msg << "Error: Invalid tag at index " << currIndex << "\nIndex " << currIndex - 1 << ": Name: "
-//        << tokens.at( currIndex - 1 ).get()->description( tokens.at( currIndex - 1 ).get()->getName() )
-//        << " Value: " << tokens.at( currIndex - 1 ).get()->getValue() << "\nIndex " << currIndex << ": Name: "
-//        << tokens.at( currIndex ).get()->description( tokens.at( currIndex ).get()->getName() )
-//        << " Value: " << tokens.at( currIndex ).get()->getValue() << "\nIndex " << currIndex + 1 << ": Name: "
-//        << tokens.at( currIndex + 1 ).get()->description( tokens.at( currIndex + 1 ).get()->getName() )
-//        << " Value: " << tokens.at( currIndex + 1 ).get()->getValue();
-//        throw exceptions::parser_exception( msg.str() );
+        std::stringstream msg;
+        msg << "Error in file " << path << " at line " << scanner->getCurrLine()
+        << ".\nCurrent node: " << currNode->getName()
+        << "\nUnexpected token: " << currToken->description() << "(" << currToken->getValue() << ")";
+        throw exceptions::parser_exception( msg.str() );
     }
 }
