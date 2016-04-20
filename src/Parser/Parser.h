@@ -47,7 +47,7 @@ namespace parser
         Parser();
 
         void parseDocument( const std::string& path );
-        JSONObject& serializeJSONObject();
+        JSONObject& getJSONObject();
 
     private:
         void throwException();

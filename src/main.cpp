@@ -15,7 +15,7 @@ int main()
     try
     {
         parser->parseDocument( "../resources/original.html" );
-        auto jsonObject = parser->serializeJSONObject();
+        auto jsonObject = parser->getJSONObject();
         std::cout << jsonObject.domains.at( 1 ).second.at( 0 ) << std::endl;
     }
     catch( const exceptions::parser_exception& e )

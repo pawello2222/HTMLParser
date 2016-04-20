@@ -162,7 +162,7 @@ namespace parser
             requestsSectionPtr = currNode;
     }
 
-    JSONObject& Parser::serializeJSONObject()
+    JSONObject& Parser::getJSONObject()
     {
         try
         {
