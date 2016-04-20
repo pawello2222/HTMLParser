@@ -7,6 +7,7 @@
 
 
 #include <string>
+#include <queue>
 #include <vector>
 
 namespace data_structures

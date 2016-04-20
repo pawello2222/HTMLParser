@@ -102,6 +102,9 @@ namespace parser
                  && assertToken( getNextToken(), TokenClass::TEXT ) )
             {
                 addAttribute( name, currToken->getValue() );
+
+                updateSectionPointers( name, currToken->getValue() );
+
                 if ( assertToken( getNextToken(), TokenClass::QUOTATION_MARK ) )
                     return true;
             }
@@ -109,11 +112,6 @@ namespace parser
 
         throwException();
         return false;
-    }
-
-    TreePtr Parser::getTree()
-    {
-        return tree;
     }
 
     void Parser::addNode( Id id, std::string name )
@@ -151,4 +149,102 @@ namespace parser
         << "\nUnexpected token: " << currToken->description() << "(" << currToken->getValue() << ")";
         throw exceptions::parser_exception( msg.str() );
     }
+
+    void Parser::updateSectionPointers( std::string name, std::string value )
+    {
+        if ( name == "id" && value == "file" )
+            fileSectionPtr = currNode;
+        else if ( name == "id" && value == "domains" )
+            domainsSectionPtr = currNode;
+        if ( name == "id" && value == "hosts" )
+            hostsSectionPtr = currNode;
+        if ( name == "id" && value == "network_http_tab" )
+            requestsSectionPtr = currNode;
+    }
+
+    JSONObject& Parser::serializeJSONObject()
+    {
+        try
+        {
+            jsonObject.name = extractFileSection( fileSectionPtr, 1 );
+            jsonObject.size = extractFileSection( fileSectionPtr, 3 );
+            jsonObject.md5 = extractFileSection( fileSectionPtr, 7 );
+            jsonObject.domains = extractSection( domainsSectionPtr );
+            jsonObject.hosts = extractSection( hostsSectionPtr );
+            jsonObject.http_requests = extractRequestsSection( requestsSectionPtr );
+        }
+        catch ( std::exception &e )
+        {
+            throw exceptions::parser_exception( "Error: Corrupted input file." );
+        }
+
+        return jsonObject;
+    }
+
+    std::string Parser::extractFileSection( NodePtr sectionPtr, unsigned long no )
+    {
+        sectionPtr = sectionPtr->getNodes().at( 3 )->getNodes().at( 1 )->getNodes().at( 1 );
+
+        return sectionPtr->getNodes().at( no )->getNodes().at( 3 )->getNodes().front()->getName();
+    }
+
+    JSONArray Parser::extractSection( NodePtr sectionPtr )
+    {
+        JSONArray result;
+        sectionPtr = sectionPtr->getNodes().at( 3 );
+
+        sectionPtr = sectionPtr->getNodes().at( 1 );
+
+        for ( unsigned long i = 1; i <= sectionPtr->getNodes().size() - 1; i += 2 )
+        {
+            result.push_back( std::make_pair( sectionPtr->getNodes().at( i )->getNodes().front()->getName(),
+                                              std::vector< std::string >() ) );
+        }
+
+        sectionPtr = sectionPtr->getParent();
+
+        for ( unsigned long i = 3; i <= sectionPtr->getNodes().size() - 1; i += 2 )
+        {
+            sectionPtr = sectionPtr->getNodes().at( i );
+
+            for ( unsigned long j = 1, index = 0; j <= sectionPtr->getNodes().size() - 1; j += 2, index++ )
+                result.at( index ).second.push_back( sectionPtr->getNodes().at( j )->getNodes().front()->getName() );
+
+            sectionPtr = sectionPtr->getParent();
+        }
+
+        return result;
+    }
+
+    JSONArray Parser::extractRequestsSection( NodePtr sectionPtr )
+    {
+        JSONArray result;
+
+        sectionPtr = sectionPtr->getNodes().at( 3 );
+        sectionPtr = sectionPtr->getNodes().at( 1 );
+
+        for ( unsigned long i = 1; i <= sectionPtr->getNodes().size() - 1; i += 2 )
+        {
+            result.push_back( std::make_pair( sectionPtr->getNodes().at( i )->getNodes().front()->getName(),
+                                              std::vector< std::string >() ) );
+        }
+
+        sectionPtr = sectionPtr->getParent();
+
+        for ( unsigned long i = 3; i <= sectionPtr->getNodes().size() - 1; i += 2 )
+        {
+            sectionPtr = sectionPtr->getNodes().at( i );
+
+            result.at( 0 ).second.push_back( sectionPtr->getNodes().at( 1 )->getNodes().front()->getName() );
+            result.at( 1 ).second.push_back(
+                    sectionPtr->getNodes().at( 3 )->getNodes().at( 1 )->getNodes().front()->getName() );
+
+            sectionPtr = sectionPtr->getParent();
+        }
+
+        return result;
+    }
 }
+
+
+

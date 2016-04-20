@@ -29,17 +29,17 @@ namespace parser
     typedef std::shared_ptr< data_structures::Token > TokenPtr;
     typedef std::unique_ptr< scanner::Scanner > ScannerPtr;
 
-    /*enum ReadState
+    typedef std::vector< std::pair< std::string, std::vector< std::string > > > JSONArray;
+
+    typedef struct JSONObject_t
     {
-        TAG = 0,
-        TAG_SPECIAL,
-        TAG_INSIDE,
-        ATTRIBUTE_NAME,
-        ATTRIBUTE_VALUE,
-        COMMENT,
-        TEXT,
-        TEXT_QUOTED
-    };*/
+        std::string name;
+        std::string size;
+        std::string md5;
+        JSONArray domains;
+        JSONArray hosts;
+        JSONArray http_requests;
+    } JSONObject;
 
     class Parser
     {
@@ -47,7 +47,7 @@ namespace parser
         Parser();
 
         void parseDocument( const std::string& path );
-        TreePtr getTree();
+        JSONObject& serializeJSONObject();
 
     private:
         void throwException();
@@ -67,6 +67,18 @@ namespace parser
         NodePtr currNode;
         TokenPtr currToken;
         std::string path;
+
+    private:
+        void updateSectionPointers( std::string name, std::string value );
+        std::string extractFileSection( NodePtr sectionPtr, unsigned long no );
+        JSONArray extractSection( NodePtr sectionPtr );
+        JSONArray extractRequestsSection( NodePtr sectionPtr );
+
+        JSONObject jsonObject;
+        NodePtr fileSectionPtr;
+        NodePtr domainsSectionPtr;
+        NodePtr hostsSectionPtr;
+        NodePtr requestsSectionPtr;
     };
 }
 
