@@ -14,7 +14,7 @@
 namespace writer
 {
     typedef data_structures::JSONObject OutputObject;
-    typedef std::vector< std::pair< std::string, std::vector< std::string > > > NestedVector;
+    typedef data_structures::NestedVector NestedVector;
 
     class Writer
     {
@@ -25,6 +25,8 @@ namespace writer
 
     private:
         std::string writeArray( NestedVector nestedVector );
+        std::string writeField( std::string name, std::string value );
+        std::string writeHTTPMethod( std::string data );
 
         std::ofstream file;
     };

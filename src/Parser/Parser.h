@@ -31,7 +31,7 @@ namespace parser
     typedef std::unique_ptr< scanner::Scanner > ScannerPtr;
 
     typedef data_structures::JSONObject OutputObject;
-    typedef std::vector< std::pair< std::string, std::vector< std::string > > > NestedVector;
+    typedef data_structures::NestedVector NestedVector;
 
     class Parser
     {
