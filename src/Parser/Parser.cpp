@@ -22,7 +22,7 @@ namespace parser
         while ( parseNode() );
 
         if ( currNode->getIdentifier() != Id::ROOT )
-            throw exceptions::parser_exception( "Error: Not all tags were closed." );
+            throw exceptions::custom_exception( "Error: Not all tags were closed." );
 
         scanner.reset();
     }
@@ -39,7 +39,7 @@ namespace parser
                 return;
         }
 
-        throw exceptions::parser_exception( "Error: Invalid DOCTYPE tag." );
+        throw exceptions::custom_exception( "Error: Invalid DOCTYPE tag." );
     }
 
     bool Parser::parseNode()
@@ -83,7 +83,7 @@ namespace parser
         {
             currNode = currNode->getParent();
             if ( !currNode )
-                throw exceptions::parser_exception( "Error: Too many close tags." );
+                throw exceptions::custom_exception( "Error: Too many close tags." );
             if ( assertToken( getNextToken(), TokenClass::CLOSE_TAG ) )
                 return true;
         }
@@ -147,7 +147,7 @@ namespace parser
         msg << "Error in file " << path << " at line " << scanner->getCurrLine()
         << ".\nCurrent node: " << currNode->getName()
         << "\nUnexpected token: " << currToken->description() << "(" << currToken->getValue() << ")";
-        throw exceptions::parser_exception( msg.str() );
+        throw exceptions::custom_exception( msg.str() );
     }
 
     void Parser::updateSectionPointers( std::string name, std::string value )
@@ -162,23 +162,23 @@ namespace parser
             requestsSectionPtr = currNode;
     }
 
-    JSONObject& Parser::getJSONObject()
+    OutputObject& Parser::getOutputObject()
     {
         try
         {
-            jsonObject.name = extractFileSection( fileSectionPtr, 1 );
-            jsonObject.size = extractFileSection( fileSectionPtr, 3 );
-            jsonObject.md5 = extractFileSection( fileSectionPtr, 7 );
-            jsonObject.domains = extractSection( domainsSectionPtr );
-            jsonObject.hosts = extractSection( hostsSectionPtr );
-            jsonObject.http_requests = extractRequestsSection( requestsSectionPtr );
+            outputObject.name = extractFileSection( fileSectionPtr, 1 );
+            outputObject.size = extractFileSection( fileSectionPtr, 3 );
+            outputObject.md5 = extractFileSection( fileSectionPtr, 7 );
+            outputObject.domains = extractSection( domainsSectionPtr );
+            outputObject.hosts = extractSection( hostsSectionPtr );
+            outputObject.http_requests = extractRequestsSection( requestsSectionPtr );
         }
         catch ( std::exception &e )
         {
-            throw exceptions::parser_exception( "Error: Corrupted input file." );
+            throw exceptions::custom_exception( "Error: Corrupted input file." );
         }
 
-        return jsonObject;
+        return outputObject;
     }
 
     std::string Parser::extractFileSection( NodePtr sectionPtr, unsigned long no )
@@ -188,9 +188,9 @@ namespace parser
         return sectionPtr->getNodes().at( no )->getNodes().at( 3 )->getNodes().front()->getName();
     }
 
-    JSONArray Parser::extractSection( NodePtr sectionPtr )
+    NestedVector Parser::extractSection( NodePtr sectionPtr )
     {
-        JSONArray result;
+        NestedVector result;
         sectionPtr = sectionPtr->getNodes().at( 3 );
 
         sectionPtr = sectionPtr->getNodes().at( 1 );
@@ -216,9 +216,9 @@ namespace parser
         return result;
     }
 
-    JSONArray Parser::extractRequestsSection( NodePtr sectionPtr )
+    NestedVector Parser::extractRequestsSection( NodePtr sectionPtr )
     {
-        JSONArray result;
+        NestedVector result;
 
         sectionPtr = sectionPtr->getNodes().at( 3 );
         sectionPtr = sectionPtr->getNodes().at( 1 );

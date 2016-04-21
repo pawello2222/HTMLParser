@@ -4,6 +4,8 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src/Data Structures/Tree.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Data Structures/Token.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/Data Structures/JSONObject.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/Data Structures/JSONObject.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Data Structures/Token.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Data Structures/Tree.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main.cpp" isTestSource="false" />

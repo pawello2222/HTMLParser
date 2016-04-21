@@ -11,6 +11,7 @@
 #include <vector>
 #include "../Data Structures/Tree.h"
 #include "../Data Structures/Token.h"
+#include "../Data Structures/JSONObject.h"
 #include "../Exceptions/Exceptions.h"
 #include "../Scanner/Scanner.h"
 
@@ -29,17 +30,8 @@ namespace parser
     typedef std::shared_ptr< data_structures::Token > TokenPtr;
     typedef std::unique_ptr< scanner::Scanner > ScannerPtr;
 
-    typedef std::vector< std::pair< std::string, std::vector< std::string > > > JSONArray;
-
-    typedef struct JSONObject_t
-    {
-        std::string name;
-        std::string size;
-        std::string md5;
-        JSONArray domains;
-        JSONArray hosts;
-        JSONArray http_requests;
-    } JSONObject;
+    typedef data_structures::JSONObject OutputObject;
+    typedef std::vector< std::pair< std::string, std::vector< std::string > > > NestedVector;
 
     class Parser
     {
@@ -47,7 +39,7 @@ namespace parser
         Parser();
 
         void parseDocument( const std::string& path );
-        JSONObject& getJSONObject();
+        OutputObject& getOutputObject();
 
     private:
         void throwException();
@@ -71,10 +63,10 @@ namespace parser
     private:
         void updateSectionPointers( std::string name, std::string value );
         std::string extractFileSection( NodePtr sectionPtr, unsigned long no );
-        JSONArray extractSection( NodePtr sectionPtr );
-        JSONArray extractRequestsSection( NodePtr sectionPtr );
+        NestedVector extractSection( NodePtr sectionPtr );
+        NestedVector extractRequestsSection( NodePtr sectionPtr );
 
-        JSONObject jsonObject;
+        OutputObject outputObject;
         NodePtr fileSectionPtr;
         NodePtr domainsSectionPtr;
         NodePtr hostsSectionPtr;

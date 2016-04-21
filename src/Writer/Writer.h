@@ -5,22 +5,30 @@
 #ifndef HTMLPARSER_WRITER_H
 #define HTMLPARSER_WRITER_H
 
+
 #include <fstream>
-#include "../Parser/Parser.h"
+#include <sstream>
+#include "../Data Structures/JSONObject.h"
 #include "../Exceptions/Exceptions.h"
-/*
-class Writer
+
+namespace writer
 {
-public:
-    Writer( Tree& _tree ) : tree( _tree ) {}
+    typedef data_structures::JSONObject OutputObject;
+    typedef std::vector< std::pair< std::string, std::vector< std::string > > > NestedVector;
 
-    void write( std::string path );
+    class Writer
+    {
+    public:
+        Writer();
 
-private:
-    void generateJSONTree();
+        void exportJSON( OutputObject outputObject );
 
-    Tree& tree;
-};*/
+    private:
+        std::string writeArray( NestedVector nestedVector );
 
+        std::ofstream file;
+    };
+
+}
 
 #endif //HTMLPARSER_WRITER_H

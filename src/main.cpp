@@ -7,6 +7,7 @@
 #include "Writer/Writer.h"
 
 typedef std::unique_ptr< parser::Parser > ParserPtr;
+typedef std::unique_ptr< writer::Writer > WriterPtr;
 
 int main()
 {
@@ -15,10 +16,8 @@ int main()
     try
     {
         parser->parseDocument( "../resources/original.html" );
-        auto jsonObject = parser->getJSONObject();
-        std::cout << jsonObject.domains.at( 1 ).second.at( 0 ) << std::endl;
     }
-    catch( const exceptions::parser_exception& e )
+    catch( const exceptions::custom_exception& e )
     {
         std::cout << e.getMessage() << std::endl;
         return -1;
@@ -26,19 +25,19 @@ int main()
 
     std::cout << "Info: Parse successful. HTML file is valid." << std::endl;
 
-//    Writer& writer = *( new Writer( parser.getTree() ) );
-//
-//    try
-//    {
-//        writer.write( "./output.txt" );
-//    }
-//    catch( const exceptions::parser_exception& e )
-//    {
-//        std::cout << e.getMessage() << std::endl;
-//        return -1;
-//    }
-//
-//    std::cout << "Info: Write successful. Output file was saved correctly." << std::endl;
+    WriterPtr writer = std::unique_ptr< writer::Writer >( new writer::Writer() );
+
+    try
+    {
+        writer->exportJSON( parser->getOutputObject() );
+    }
+    catch( const exceptions::custom_exception& e )
+    {
+        std::cout << e.getMessage() << std::endl;
+        return -1;
+    }
+
+    std::cout << "Info: Write successful. Output file was saved correctly." << std::endl;
 
     return 0;
 }

@@ -11,7 +11,7 @@ namespace scanner
         file = std::ifstream( path );
 
         if ( !file )
-            throw exceptions::parser_exception( "Error: Cannot open source file." );
+            throw exceptions::custom_exception( "Error: Cannot open source file." );
 
         state = ReadState::TAG;
         currLine = 1;
