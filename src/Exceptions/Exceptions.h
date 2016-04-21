@@ -11,10 +11,10 @@
 
 namespace exceptions
 {
-    class parser_exception : public std::exception
+    class custom_exception : public std::exception
     {
     public:
-        parser_exception( std::string _message )
+        custom_exception( std::string _message )
         {
             this->message = _message;
         }

@@ -6,31 +6,48 @@
 
 namespace scanner
 {
-    Scanner::Scanner()
+    Scanner::Scanner( const std::string& path )
     {
-        //tokens.clear();
+        file = std::ifstream( path );
+
+        if ( !file )
+            throw exceptions::custom_exception( "Error: Cannot open source file." );
+
+        state = ReadState::TAG;
+        currLine = 1;
     }
 
     Scanner::~Scanner()
     {
-        //tokens.clear();
+        if ( file )
+            file.close();
     }
 
-    void Scanner::readFile( const std::string& path )
+    TokenPtr Scanner::getNextToken()
     {
-        std::ifstream file( path );
-        if ( !file )
-            throw exceptions::parser_exception( "Error: Cannot open source file." );
+        if ( !queue.size() )
+            parseFile();
 
+        auto tmp = queue.front();
+        queue.pop();
+        return tmp;
+    }
+
+    void Scanner::parseFile()
+    {
         char c;
 
-        ReadState state = ReadState::TEXT;
+        if ( c == '\n' )
+            currLine++;
 
         while ( !file.eof() )
         {
             file.get( c );
             if ( file.eof() )
+            {
+                addToken( TokenClass::END_OF_FILE );
                 break;
+            };
 
             switch ( state )
             {
@@ -38,71 +55,75 @@ namespace scanner
                     switch ( c )
                     {
                         case '<':
-                            addToken( TokenClass::OPEN_BEGIN_TAG, "" );
-                            break;
-
-                        case '/':
-//                            if ( outputStr != "" )
-//                                addToken( TokenClass::IDENTIFIER, outputStr );
-                            if ( tokens.back()->getClass() == TokenClass::OPEN_BEGIN_TAG )
-                                tokens.back()->setClass( TokenClass::OPEN_END_TAG );
-                            else
+                            file.get( c );
+                            if ( c == '!' )
                             {
                                 file.get( c );
-                                if ( c == '>' )
+                                if ( c == '-' )
                                 {
-                                    state = ReadState::TEXT;
-                                    addToken( TokenClass::AUTO_CLOSE_TAG, "" );
-                                    break;
+                                    file.get( c );
+                                    if ( c == '-' )
+                                    {
+                                        state = ReadState::COMMENT;
+                                        break;
+                                    }
+                                    file.unget();
                                 }
                                 file.unget();
-                                outputStr += '/';
                             }
+                            else if ( c == '/' )
+                            {
+                                addToken( TokenClass::OPEN_END_TAG );
+                                return;
+                            }
+                            file.unget();
+                            addToken( TokenClass::OPEN_BEGIN_TAG );
+                            return;
+
+                        case '/':
+                            if ( outputStr != "" )
+                                addToken( TokenClass::IDENTIFIER, outputStr );
+                            file.get( c );
+                            if ( c == '>' )
+                            {
+                                state = ReadState::TEXT;
+                                addToken( TokenClass::AUTO_CLOSE_TAG );
+                                return;
+                            }
+                            file.unget();
+                            outputStr += '/';
                             break;
 
                         case '>':
                             if ( outputStr != "" )
                                 addToken( TokenClass::IDENTIFIER, outputStr );
-                            addToken( TokenClass::CLOSE_TAG, "" );
+                            addToken( TokenClass::CLOSE_TAG );
                             state = ReadState::TEXT;
-                            break;
+                            return;
 
                         case '!':
-                            addToken( TokenClass::EXCLAMATION_MARK, "" );
-                            break;
-
-                        case '-':
-                            if ( getLastTokenClass( 0 ) == TokenClass::EXCLAMATION_MARK
-                                 && getLastTokenClass( 1 ) == TokenClass::OPEN_BEGIN_TAG )
-                            {
-                                file.get( c );
-                                if ( c == '-' )
-                                {
-                                    state = ReadState::COMMENT;
-                                    addToken( TokenClass::COMMENT_BEGIN, "" );
-                                    break;
-                                }
-                                file.unget();
-                            }
-                            outputStr += '-';
-                            break;
+                            addToken( TokenClass::EXCLAMATION_MARK );
+                            return;
 
                         case '=':
                             if ( outputStr != "" )
                                 addToken( TokenClass::IDENTIFIER, outputStr );
-                            addToken( TokenClass::ASSIGNMENT, "" );
-                            break;
+                            addToken( TokenClass::ASSIGNMENT );
+                            return;
 
                         case '\"':
-                            addToken( TokenClass::QUOTATION_MARK, "" );
+                            addToken( TokenClass::QUOTATION_MARK );
                             file.get( c );
                             while ( c != '\"' && !file.eof() )
                             {
                                 outputStr += c;
                                 file.get( c );
+                                if ( c == '\n' )
+                                    currLine++;
                             }
                             addToken( TokenClass::TEXT, outputStr );
-                            addToken( TokenClass::QUOTATION_MARK, "" );
+                            addToken( TokenClass::QUOTATION_MARK );
+                            return;
 
                         case ' ':
                             if ( outputStr != "" )
@@ -111,7 +132,6 @@ namespace scanner
                             while ( c == ' ' && !file.eof() )
                                 file.get( c );
                             file.unget();
-                            addToken( TokenClass::WHITESPACE, "" );
                             break;
 
                         default:
@@ -124,25 +144,30 @@ namespace scanner
                 case TEXT:
                     if ( c == '<' )
                     {
-                        file.get( c );
-                        if ( c == '/' || c == '!' || ( c != ' ' && c != '=' ) )
+                        char e;
+                        file.get( e );
+                        if ( e == '/' || e == '!' || ( e != ' ' && e != '=' ) )
                         {
                             addToken( TokenClass::TEXT, outputStr );
                             file.unget();
                             file.unget();
                             state = ReadState::TAG;
-                            break;
+                            return;
                         }
                         file.unget();
                     }
                     if ( c == '\'' )
                         state = ReadState::TEXT_QUOTED;
+                    if ( c == '\n' )
+                        currLine++;
                     outputStr += c;
                     break;
 
                 case TEXT_QUOTED:
                     if ( c == '\'' )
                         state = ReadState::TEXT;
+                    if ( c == '\n' )
+                        currLine++;
                     outputStr += c;
                     break;
 
@@ -155,9 +180,6 @@ namespace scanner
                             file.get( c );
                             if ( c == '>' )
                             {
-                                addToken( TokenClass::TEXT, outputStr );
-                                addToken( TokenClass::COMMENT_END, "" );
-                                addToken( TokenClass::CLOSE_TAG, "" );
                                 state = ReadState::TEXT;
                                 break;
                             }
@@ -165,30 +187,25 @@ namespace scanner
                         }
                         file.unget();
                     }
-                    outputStr += c;
+                    if ( c == '\n' )
+                        currLine++;
                     break;
             }
         }
     }
 
-
-
-    void Scanner::addToken( TokenClass key, std::string value )
+    TokenPtr Scanner::addToken( TokenClass key, std::string value )
     {
-        tokens.push_back( new data_structures::Token( key, value ) );
+        TokenPtr token = std::shared_ptr< data_structures::Token >( new data_structures::Token( key, value ) );
         outputStr = "";
+        if ( queue.size() >= MAX_QUEUE_SIZE )
+            queue.pop();
+        queue.push( token );
+        return token;
     }
 
-    TokenClass Scanner::getLastTokenClass( int index )
+    int Scanner::getCurrLine() const
     {
-        if ( tokens.size() - index <= 0 )
-            return TokenClass::UNKNOWN;
-
-        return tokens.at( tokens.size() - 1 - index )->getClass();
-    }
-
-    Tokens& Scanner::getTokens()
-    {
-        return tokens;
+        return currLine;
     }
 }

@@ -17,19 +17,15 @@ namespace data_structures
         return name;
     }
 
-    void Attribute::setName( const std::string& name )
-    {
-        Attribute::name = name;
-    }
-
     const std::string& Attribute::getValue() const
     {
         return value;
     }
 
-    void Attribute::setValue( const std::string& value )
+    Node::Node( Identifier _identifier )
     {
-        Attribute::value = value;
+        this->identifier = _identifier;
+        this->name = "";
     }
 
     Node::Node( Identifier _identifier, std::string _name )
@@ -37,8 +33,10 @@ namespace data_structures
         this->identifier = _identifier;
         this->name = _name;
     }
+
     Node::~Node()
     {
+        // TODO
         nodes.clear();
         attributes.clear();
     }
@@ -48,57 +46,37 @@ namespace data_structures
         return identifier;
     }
 
-    void Node::setIdentifier( const Identifier& identifier )
-    {
-        Node::identifier = identifier;
-    }
-
     const std::string& Node::getName() const
     {
         return name;
     }
 
-    void Node::setName( const std::string& name )
-    {
-        Node::name = name;
-    }
-
-    std::vector< Node* >& Node::getNodes()
+    Nodes& Node::getNodes()
     {
         return nodes;
     }
 
-    void Node::setNodes( const std::vector< Node* >& nodes )
-    {
-        Node::nodes = nodes;
-    }
-
-    std::vector< Attribute* >& Node::getAttributes()
+    Attributes& Node::getAttributes()
     {
         return attributes;
     }
 
-    void Node::setAttributes( const std::vector< Attribute* >& attributes )
-    {
-        Node::attributes = attributes;
-    }
-
-    Node* Node::getParent() const
+    NodePtr Node::getParent()
     {
         return parent;
     }
 
-    void Node::setParent( Node* parent )
+    void Node::setParent( NodePtr parent )
     {
         Node::parent = parent;
     }
 
-    Node* Tree::getRoot() const
+    NodePtr Tree::getRoot()
     {
         return root;
     }
 
-    void Tree::setRoot( Node* root )
+    Tree::Tree( NodePtr root )
     {
         Tree::root = root;
     }

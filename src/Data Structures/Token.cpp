@@ -22,20 +22,20 @@ namespace data_structures
         return _class;
     }
 
-    void Token::setClass( const TokenClass& _class )
-    {
-        this->_class = _class;
-    }
+//    void Token::setClass( const TokenClass& _class )
+//    {
+//        this->_class = _class;
+//    }
 
     const std::string& Token::getValue() const
     {
         return _value;
     }
 
-    void Token::setValue( const std::string& _value )
-    {
-        this->_value = _value;
-    }
+//    void Token::setValue( const std::string& _value )
+//    {
+//        this->_value = _value;
+//    }
 
     std::string Token::description()
     {
@@ -53,20 +53,16 @@ namespace data_structures
                 return "CLOSE_TAG";
             case AUTO_CLOSE_TAG:
                 return "AUTO_CLOSE_TAG";
-            case WHITESPACE:
-                return "WHITESPACE";
             case ASSIGNMENT:
                 return "ASSIGNMENT";
             case QUOTATION_MARK:
                 return "QUOTATION_MARK";
             case EXCLAMATION_MARK:
                 return "EXCLAMATION_MARK";
-            case COMMENT_BEGIN:
-                return "COMMENT_BEGIN";
-            case COMMENT_END:
-                return "COMMENT_END";
-            case UNKNOWN:
-                return "UNKNOWN";
+            case NULL_TOKEN:
+                return "NULL_TOKEN";
+            case END_OF_FILE:
+                return "END_OF_FILE";
         }
 
         return std::string();

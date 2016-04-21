@@ -7,10 +7,19 @@
 
 
 #include <string>
+#include <queue>
 #include <vector>
 
 namespace data_structures
 {
+    class Node;
+    class Attribute;
+
+    typedef std::shared_ptr< Node > NodePtr;
+    typedef std::shared_ptr< Attribute > AttributePtr;
+    typedef std::vector< NodePtr > Nodes;
+    typedef std::vector< AttributePtr > Attributes;
+
     enum Identifier
     {
         ROOT = 0,
@@ -25,9 +34,7 @@ namespace data_structures
         Attribute( std::string _name, std::string _value );
 
         const std::string& getName() const;
-        void setName( const std::string& name );
         const std::string& getValue() const;
-        void setValue( const std::string& value );
 
     private:
         std::string name;
@@ -37,41 +44,37 @@ namespace data_structures
     class Node
     {
     public:
+        Node( Identifier _identifier );
         Node( Identifier _identifier, std::string _name );
         ~Node();
 
         const Identifier& getIdentifier() const;
-        void setIdentifier( const Identifier& identifier );
         const std::string& getName() const;
-        void setName( const std::string& name );
-        std::vector< Node* >& getNodes();
-        void setNodes( const std::vector< Node* >& nodes );
-        std::vector< Attribute* >& getAttributes();
-        void setAttributes( const std::vector< Attribute* >& attributes );
-        Node* getParent() const;
-        void setParent( Node* parent );
+        Nodes& getNodes();
+        Attributes& getAttributes();
+        NodePtr getParent();
+        void setParent( NodePtr parent );
 
     private:
         Identifier identifier;
         std::string name;
-        std::vector< Node* > nodes;
-        std::vector< Attribute* > attributes;
-        Node* parent;
+        std::vector< NodePtr > nodes;
+        std::vector< AttributePtr > attributes;
+        NodePtr parent;
     };
 
     class Tree
     {
     public:
-        Tree() {};
+        Tree( NodePtr root );
         ~Tree() {};
 
-        Node* getRoot() const;
-        void setRoot( Node* root );
+        NodePtr getRoot();
         const std::string& getDoctype() const;
         void setDoctype( const std::string& doctype );
 
     private:
-        Node* root;
+        NodePtr root;
         std::string doctype;
     };
 }
