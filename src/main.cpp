@@ -9,13 +9,21 @@
 typedef std::unique_ptr< parser::Parser > ParserPtr;
 typedef std::unique_ptr< writer::Writer > WriterPtr;
 
-int main()
+int main( int argc, char* argv[] )
 {
+    if ( argc != 2 )
+    {
+        std::cout << "Too few arguments." << std::endl;
+        return -1;
+    }
+
+    std::string path = argv[ 1 ];
+
     ParserPtr parser = std::unique_ptr< parser::Parser >( new parser::Parser() );
 
     try
     {
-        parser->parseDocument( "../resources/malwr/Malwr0.html" );
+        parser->parseDocument( path );
     }
     catch( const exceptions::custom_exception& e )
     {
