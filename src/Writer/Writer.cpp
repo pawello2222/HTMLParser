@@ -32,6 +32,9 @@ namespace writer
 
     std::string Writer::writeArray( NestedVector nestedVector )
     {
+        if ( !nestedVector.size() )
+            return "{ }";
+
         std::stringstream sstream;
 
         sstream << "{ ";
@@ -93,6 +96,8 @@ namespace writer
 
     std::string Writer::writeHTTPMethod( std::string data )
     {
+        return data;
+
         std::stringstream sstream;
 
         std::vector< std::string > lines = split( data );

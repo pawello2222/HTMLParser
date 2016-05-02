@@ -194,59 +194,77 @@ namespace parser
 
     NestedVector Parser::extractSection( NodePtr sectionPtr )
     {
-        NestedVector result;
-        sectionPtr = sectionPtr->getNodes().at( 3 );
-
-        sectionPtr = sectionPtr->getNodes().at( 1 );
-
-        for ( unsigned long i = 1; i <= sectionPtr->getNodes().size() - 1; i += 2 )
+        try
         {
-            result.push_back( std::make_pair( sectionPtr->getNodes().at( i )->getNodes().front()->getName(),
-                                              std::vector< std::string >() ) );
-        }
+            NestedVector result;
+            sectionPtr = sectionPtr->getNodes().at( 3 );
 
-        sectionPtr = sectionPtr->getParent();
+            sectionPtr = sectionPtr->getNodes().at( 1 );
 
-        for ( unsigned long i = 3; i <= sectionPtr->getNodes().size() - 1; i += 2 )
-        {
-            sectionPtr = sectionPtr->getNodes().at( i );
-
-            for ( unsigned long j = 1, index = 0; j <= sectionPtr->getNodes().size() - 1; j += 2, index++ )
-                result.at( index ).second.push_back( sectionPtr->getNodes().at( j )->getNodes().front()->getName() );
+            for ( unsigned long i = 1; i <= sectionPtr->getNodes().size() - 1; i += 2 )
+            {
+                result.push_back( std::make_pair( sectionPtr->getNodes().at( i )->getNodes().front()->getName(),
+                                                  std::vector< std::string >() ) );
+            }
 
             sectionPtr = sectionPtr->getParent();
+
+            for ( unsigned long i = 3; i <= sectionPtr->getNodes().size() - 1; i += 2 )
+            {
+                sectionPtr = sectionPtr->getNodes().at( i );
+
+                for ( unsigned long j = 1, index = 0; j <= sectionPtr->getNodes().size() - 1; j += 2, index++ )
+                    result.at( index ).second.push_back( sectionPtr->getNodes().at( j )->getNodes().front()->getName() );
+
+                sectionPtr = sectionPtr->getParent();
+            }
+
+            return result;
+        }
+        catch( std::exception &e )
+        {
+
         }
 
-        return result;
+        return NestedVector();
     }
 
     NestedVector Parser::extractRequestsSection( NodePtr sectionPtr )
     {
-        NestedVector result;
-
-        sectionPtr = sectionPtr->getNodes().at( 3 );
-        sectionPtr = sectionPtr->getNodes().at( 1 );
-
-        for ( unsigned long i = 1; i <= sectionPtr->getNodes().size() - 1; i += 2 )
+        try
         {
-            result.push_back( std::make_pair( sectionPtr->getNodes().at( i )->getNodes().front()->getName(),
-                                              std::vector< std::string >() ) );
-        }
+            NestedVector result;
 
-        sectionPtr = sectionPtr->getParent();
+            sectionPtr = sectionPtr->getNodes().at( 3 );
+            sectionPtr = sectionPtr->getNodes().at( 1 );
 
-        for ( unsigned long i = 3; i <= sectionPtr->getNodes().size() - 1; i += 2 )
-        {
-            sectionPtr = sectionPtr->getNodes().at( i );
-
-            result.at( 0 ).second.push_back( sectionPtr->getNodes().at( 1 )->getNodes().front()->getName() );
-            result.at( 1 ).second.push_back(
-                    sectionPtr->getNodes().at( 3 )->getNodes().at( 1 )->getNodes().front()->getName() );
+            for ( unsigned long i = 1; i <= sectionPtr->getNodes().size() - 1; i += 2 )
+            {
+                result.push_back( std::make_pair( sectionPtr->getNodes().at( i )->getNodes().front()->getName(),
+                                                  std::vector< std::string >() ) );
+            }
 
             sectionPtr = sectionPtr->getParent();
+
+            for ( unsigned long i = 3; i <= sectionPtr->getNodes().size() - 1; i += 2 )
+            {
+                sectionPtr = sectionPtr->getNodes().at( i );
+
+                result.at( 0 ).second.push_back( sectionPtr->getNodes().at( 1 )->getNodes().front()->getName() );
+                result.at( 1 ).second.push_back(
+                        sectionPtr->getNodes().at( 3 )->getNodes().at( 1 )->getNodes().front()->getName() );
+
+                sectionPtr = sectionPtr->getParent();
+            }
+
+            return result;
+        }
+        catch( std::exception &e )
+        {
+
         }
 
-        return result;
+        return NestedVector();
     }
 }
 
