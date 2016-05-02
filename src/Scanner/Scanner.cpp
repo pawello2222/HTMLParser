@@ -35,8 +35,6 @@ namespace scanner
 
     void Scanner::parseFile()
     {
-        char c;
-
         if ( c == '\n' )
             currLine++;
 

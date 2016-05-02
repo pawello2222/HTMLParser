@@ -47,6 +47,7 @@ namespace scanner
         std::queue< TokenPtr > queue;
         int currLine;
         bool scriptMode;
+        char c;
     };
 }
 

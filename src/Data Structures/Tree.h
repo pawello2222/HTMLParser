@@ -24,8 +24,7 @@ namespace data_structures
     {
         ROOT = 0,
         TAG = 1,
-        PLAIN_TEXT = 2,
-        COMMENT = 3
+        PLAIN_TEXT = 2
     };
 
     class Attribute
@@ -33,8 +32,8 @@ namespace data_structures
     public:
         Attribute( std::string _name, std::string _value );
 
-        const std::string& getName() const;
-        const std::string& getValue() const;
+//        const std::string& getName() const;
+//        const std::string& getValue() const;
 
     private:
         std::string name;
@@ -70,7 +69,7 @@ namespace data_structures
         ~Tree() {};
 
         NodePtr getRoot();
-        const std::string& getDoctype() const;
+//        const std::string& getDoctype() const;
         void setDoctype( const std::string& doctype );
 
     private:

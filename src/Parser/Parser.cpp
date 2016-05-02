@@ -2,7 +2,6 @@
 // Created by Pawel Wiszenko on 08.04.2016.
 //
 
-#include <iostream>
 #include "Parser.h"
 
 namespace parser
@@ -129,8 +128,6 @@ namespace parser
     TokenPtr Parser::getNextToken()
     {
         currToken = scanner->getNextToken();
-
-        //std::cout << currToken->description() << " " << currToken->getValue() << std::endl;
 
         return currToken;
     }

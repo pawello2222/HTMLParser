@@ -26,7 +26,6 @@ namespace parser
 
     typedef std::shared_ptr< HTMLTree > TreePtr;
     typedef std::shared_ptr< HTMLNode > NodePtr;
-    typedef std::shared_ptr< HTMLAttribute > AttributePtr;
     typedef std::shared_ptr< data_structures::Token > TokenPtr;
     typedef std::unique_ptr< scanner::Scanner > ScannerPtr;
 

@@ -12,15 +12,15 @@ namespace data_structures
         this->value = _value;
     }
 
-    const std::string& Attribute::getName() const
-    {
-        return name;
-    }
-
-    const std::string& Attribute::getValue() const
-    {
-        return value;
-    }
+//    const std::string& Attribute::getName() const
+//    {
+//        return name;
+//    }
+//
+//    const std::string& Attribute::getValue() const
+//    {
+//        return value;
+//    }
 
     Node::Node( Identifier _identifier )
     {
@@ -81,10 +81,10 @@ namespace data_structures
         Tree::root = root;
     }
 
-    const std::string& Tree::getDoctype() const
-    {
-        return doctype;
-    }
+//    const std::string& Tree::getDoctype() const
+//    {
+//        return doctype;
+//    }
 
     void Tree::setDoctype( const std::string& doctype )
     {

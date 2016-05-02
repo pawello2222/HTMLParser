@@ -6,12 +6,12 @@
 
 namespace writer
 {
-    writer::Writer::Writer()
+    Writer::Writer()
     {
 
     }
 
-    void writer::Writer::exportJSON( writer::OutputObject outputObject )
+    void Writer::exportJSON( writer::OutputObject outputObject )
     {
         file = std::ofstream( "./output.txt" );
 
