@@ -83,7 +83,7 @@ namespace writer
 
         unsigned long index = data.find_first_of( "\n" );
 
-        for ( int i = 0; i < 5; i++ )
+        while( index != std::string::npos )
         {
             result.push_back( data.substr( 0, index - 1 ) );
             data.erase( 0, index + 1 );
@@ -96,22 +96,24 @@ namespace writer
 
     std::string Writer::writeHTTPMethod( std::string data )
     {
-        return data;
-
         std::stringstream sstream;
 
         std::vector< std::string > lines = split( data );
 
-        auto index = lines.at( 0 ).find_first_of( '\r' );
-        sstream << "{ " << writeField( "Method", lines.at( 0 ).substr( 0, index - 1 ) ) << ", ";
+        unsigned long index;
+        sstream << "{ " << writeField( "Method", lines.at( 0 ) ) << ", ";
 
-        for ( unsigned long i = 1; i < lines.size() - 1; i++ )
+        unsigned long i;
+        for ( i = 1; i < lines.size() - 1; i++ )
         {
             index = lines.at( i ).find_first_of( ':' );
+            if ( index == std::string::npos )
+                break;
             sstream << writeField( lines.at( i ).substr( 0, index ), lines.at( i ).substr( index + 2, lines.at( i ).length() - index - 2 ) ) << ", ";
         }
 
-        sstream << writeField( "Data", lines.at( lines.size() - 1 ) ) << " } ";
+        if ( i + 1 < lines.size() )
+            sstream << writeField( "Data", lines.at( i + 1 ) ) << " } ";
 
         return sstream.str();
     }
