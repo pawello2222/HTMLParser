@@ -46,6 +46,7 @@ namespace scanner
         ReadState state;
         std::queue< TokenPtr > queue;
         int currLine;
+        bool scriptMode;
     };
 }
 

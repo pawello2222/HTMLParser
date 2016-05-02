@@ -15,7 +15,7 @@ int main()
 
     try
     {
-        parser->parseDocument( "../resources/original.html" );
+        parser->parseDocument( "../resources/malwr/Malwr7.html" );
     }
     catch( const exceptions::custom_exception& e )
     {

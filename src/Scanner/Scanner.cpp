@@ -82,7 +82,11 @@ namespace scanner
 
                         case '/':
                             if ( outputStr != "" )
+                            {
                                 addToken( TokenClass::IDENTIFIER, outputStr );
+                                if ( outputStr == "script" )
+                                    scriptMode = false;
+                            }
                             file.get( c );
                             if ( c == '>' )
                             {
@@ -96,7 +100,11 @@ namespace scanner
 
                         case '>':
                             if ( outputStr != "" )
+                            {
                                 addToken( TokenClass::IDENTIFIER, outputStr );
+                                if ( outputStr == "script" )
+                                    scriptMode = true;
+                            }
                             addToken( TokenClass::CLOSE_TAG );
                             state = ReadState::TEXT;
                             return;
@@ -107,7 +115,11 @@ namespace scanner
 
                         case '=':
                             if ( outputStr != "" )
+                            {
                                 addToken( TokenClass::IDENTIFIER, outputStr );
+                                if ( outputStr == "script" )
+                                    scriptMode = true;
+                            }
                             addToken( TokenClass::ASSIGNMENT );
                             return;
 
@@ -127,7 +139,11 @@ namespace scanner
 
                         case ' ':
                             if ( outputStr != "" )
+                            {
                                 addToken( TokenClass::IDENTIFIER, outputStr );
+                                if ( outputStr == "script" )
+                                    scriptMode = true;
+                            }
                             file.get( c );
                             while ( c == ' ' && !file.eof() )
                                 file.get( c );
@@ -156,7 +172,7 @@ namespace scanner
                         }
                         file.unget();
                     }
-                    if ( c == '\'' )
+                    if ( c == '\'' && scriptMode )
                         state = ReadState::TEXT_QUOTED;
                     if ( c == '\n' )
                         currLine++;
