@@ -11,14 +11,13 @@ typedef std::unique_ptr< writer::Writer > WriterPtr;
 
 int main( int argc, char* argv[] )
 {
-    /*if ( argc != 2 )
+    if ( argc != 2 )
     {
         std::cout << "Too few arguments." << std::endl;
         return -1;
     }
 
-    std::string path = argv[ 1 ];*/
-    std::string path = "../resources/original.html";
+    std::string path = argv[ 1 ];
 
     ParserPtr parser = std::unique_ptr< parser::Parser >( new parser::Parser() );
 
