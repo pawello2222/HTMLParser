@@ -6,6 +6,7 @@
 #define HTMLPARSER_TREE_H
 
 
+#include <memory>
 #include <string>
 #include <queue>
 #include <vector>

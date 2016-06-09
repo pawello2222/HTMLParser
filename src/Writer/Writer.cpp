@@ -13,7 +13,7 @@ namespace writer
 
     void Writer::exportJSON( writer::OutputObject outputObject )
     {
-        file = std::ofstream( "./output.txt" );
+        file.open( "./output.txt" );
 
         if ( !file )
             throw exceptions::custom_exception( "Error: Cannot save output file." );
@@ -85,7 +85,7 @@ namespace writer
 
         while( index != std::string::npos )
         {
-            result.push_back( data.substr( 0, index - 1 ) );
+            result.push_back( data.substr( 0, index ) );
             data.erase( 0, index + 1 );
             index = data.find_first_of( '\n' );
         }

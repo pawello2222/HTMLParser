@@ -8,7 +8,7 @@ namespace scanner
 {
     Scanner::Scanner( const std::string& path )
     {
-        file = std::ifstream( path );
+        file.open( path );
 
         if ( !file )
             throw exceptions::custom_exception( "Error: Cannot open source file." );
