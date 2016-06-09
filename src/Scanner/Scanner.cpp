@@ -15,6 +15,8 @@ namespace scanner
 
         state = ReadState::TAG;
         currLine = 1;
+        scriptMode = false;
+        c = '\0';
     }
 
     Scanner::~Scanner()
