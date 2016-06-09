@@ -19,7 +19,7 @@ int main( int argc, char* argv[] )
 
     std::string path = argv[ 1 ];*/
 
-    std::string path = "../resources/malwr/Malwr_new2.html";
+    std::string path = "../resources/malwr/Malwr_new1.html";
 
     ParserPtr parser = std::unique_ptr< parser::Parser >( new parser::Parser() );
 
