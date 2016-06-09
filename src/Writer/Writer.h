@@ -21,7 +21,7 @@ namespace writer
     public:
         Writer();
 
-        void exportJSON( OutputObject outputObject );
+        void exportJSON( OutputObject outputObject, const std::string& path );
 
     private:
         std::string writeArray( NestedVector nestedVector );

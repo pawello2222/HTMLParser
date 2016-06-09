@@ -11,21 +11,20 @@ typedef std::unique_ptr< writer::Writer > WriterPtr;
 
 int main( int argc, char* argv[] )
 {
-    /*if ( argc != 2 )
+    if ( argc != 4 )
     {
         std::cout << "Too few arguments." << std::endl;
         return -1;
     }
 
-    std::string path = argv[ 1 ];*/
-
-    std::string path = "../resources/malwr/Malwr_new1.html";
+    std::string inputPath = argv[ 1 ];
+    std::string outputPath = argv[ 2 ];
 
     ParserPtr parser = std::unique_ptr< parser::Parser >( new parser::Parser() );
 
     try
     {
-        parser->parseDocument( path );
+        parser->parseDocument( inputPath );
     }
     catch( const exceptions::custom_exception& e )
     {
@@ -39,7 +38,7 @@ int main( int argc, char* argv[] )
 
     try
     {
-        writer->exportJSON( parser->getOutputObject() );
+        writer->exportJSON( parser->getOutputObject(), outputPath );
     }
     catch( const exceptions::custom_exception& e )
     {

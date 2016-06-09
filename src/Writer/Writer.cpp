@@ -11,9 +11,9 @@ namespace writer
 
     }
 
-    void Writer::exportJSON( writer::OutputObject outputObject )
+    void Writer::exportJSON( writer::OutputObject outputObject, const std::string& path )
     {
-        file.open( "./output.txt" );
+        file.open( path );
 
         if ( !file )
             throw exceptions::custom_exception( "Error: Cannot save output file." );
