@@ -25,6 +25,7 @@ namespace scanner
         TAG,
         TEXT,
         TEXT_QUOTED,
+        TEXT_DOUBLE_QUOTED,
         COMMENT
     };
 

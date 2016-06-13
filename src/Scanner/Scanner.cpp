@@ -83,9 +83,9 @@ namespace scanner
                         case '/':
                             if ( outputStr != "" )
                             {
-                                addToken( TokenClass::IDENTIFIER, outputStr );
                                 if ( outputStr == "script" )
                                     scriptMode = false;
+                                addToken( TokenClass::IDENTIFIER, outputStr );
                             }
                             file.get( c );
                             if ( c == '>' )
@@ -101,9 +101,9 @@ namespace scanner
                         case '>':
                             if ( outputStr != "" )
                             {
-                                addToken( TokenClass::IDENTIFIER, outputStr );
                                 if ( outputStr == "script" )
                                     scriptMode = true;
+                                addToken( TokenClass::IDENTIFIER, outputStr );
                             }
                             addToken( TokenClass::CLOSE_TAG );
                             state = ReadState::TEXT;
@@ -116,17 +116,18 @@ namespace scanner
                         case '=':
                             if ( outputStr != "" )
                             {
-                                addToken( TokenClass::IDENTIFIER, outputStr );
                                 if ( outputStr == "script" )
                                     scriptMode = true;
+                                addToken( TokenClass::IDENTIFIER, outputStr );
                             }
                             addToken( TokenClass::ASSIGNMENT );
                             return;
 
                         case '\"':
+                        case '\'':
                             addToken( TokenClass::QUOTATION_MARK );
                             file.get( c );
-                            while ( c != '\"' && !file.eof() )
+                            while ( c != '\"' && c != '\'' && !file.eof() )
                             {
                                 outputStr += c;
                                 file.get( c );
@@ -140,9 +141,9 @@ namespace scanner
                         case ' ':
                             if ( outputStr != "" )
                             {
-                                addToken( TokenClass::IDENTIFIER, outputStr );
                                 if ( outputStr == "script" )
                                     scriptMode = true;
+                                addToken( TokenClass::IDENTIFIER, outputStr );
                             }
                             file.get( c );
                             while ( c == ' ' && !file.eof() )
@@ -174,6 +175,8 @@ namespace scanner
                     }
                     if ( c == '\'' && scriptMode )
                         state = ReadState::TEXT_QUOTED;
+                    if ( c == '\"' && scriptMode )
+                        state = ReadState::TEXT_DOUBLE_QUOTED;
                     if ( c == '\n' )
                         currLine++;
                     outputStr += c;
@@ -181,6 +184,14 @@ namespace scanner
 
                 case TEXT_QUOTED:
                     if ( c == '\'' )
+                        state = ReadState::TEXT;
+                    if ( c == '\n' )
+                        currLine++;
+                    outputStr += c;
+                    break;
+
+                case TEXT_DOUBLE_QUOTED:
+                    if ( c == '\"' )
                         state = ReadState::TEXT;
                     if ( c == '\n' )
                         currLine++;
