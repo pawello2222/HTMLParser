@@ -82,11 +82,7 @@ namespace scanner
 
                         case '/':
                             if ( outputStr != "" )
-                            {
-                                if ( outputStr == "script" )
-                                    scriptMode = false;
                                 addToken( TokenClass::IDENTIFIER, outputStr );
-                            }
                             file.get( c );
                             if ( c == '>' )
                             {
@@ -101,8 +97,10 @@ namespace scanner
                         case '>':
                             if ( outputStr != "" )
                             {
-                                if ( outputStr == "script" )
+                                if ( outputStr == "script" && !scriptMode )
                                     scriptMode = true;
+                                else if ( outputStr == "script" && scriptMode )
+                                    scriptMode = false;
                                 addToken( TokenClass::IDENTIFIER, outputStr );
                             }
                             addToken( TokenClass::CLOSE_TAG );
@@ -115,11 +113,7 @@ namespace scanner
 
                         case '=':
                             if ( outputStr != "" )
-                            {
-                                if ( outputStr == "script" )
-                                    scriptMode = true;
                                 addToken( TokenClass::IDENTIFIER, outputStr );
-                            }
                             addToken( TokenClass::ASSIGNMENT );
                             return;
 
@@ -141,8 +135,10 @@ namespace scanner
                         case ' ':
                             if ( outputStr != "" )
                             {
-                                if ( outputStr == "script" )
+                                if ( outputStr == "script" && !scriptMode )
                                     scriptMode = true;
+                                else if ( outputStr == "script" && scriptMode )
+                                    scriptMode = false;
                                 addToken( TokenClass::IDENTIFIER, outputStr );
                             }
                             file.get( c );
